@@ -1,0 +1,13 @@
+{
+    "require": {
+        "phpoffice/phpspreadsheet": "1.16.0"
+    },
+
+
+"config": {
+    "platform-check": false,
+    "platform": {
+        "php": "7.1.0"
+    }
+}
+}
