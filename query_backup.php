@@ -4,7 +4,7 @@ $datefilter = '';
 
 if ($_REQUEST['startDate'] != '' && $_REQUEST['endDate'] != '') {
     $startDate = date('d-m-Y', strtotime($_REQUEST['startDate']));
-    $endDate = date('d-m-Y', strtotime($_REQUEST['endDate']));
+    $endDate = date('d-m-Y', strtotime($_REQUwhere3EST['endDate']));
     $datefilter = ' and date(updateDate)<="' . date('Y-m-d', strtotime($endDate)) . '" and  date(updateDate)>="' . date('Y-m-d', strtotime($startDate)) . '"';
 } else {
     $startDate = date('d-m-Y', strtotime('-30 Days'));
@@ -58,7 +58,16 @@ if ($LoginUserDetails['userType'] != 0) {
       {
           
           
-          $mainwhere = 'and queryMaster.id IN (
+        //   $mainwhere = 'and queryMaster.id IN (
+        //     SELECT queryId 
+        //     FROM sys_packageBuilder 
+        //     WHERE id IN (
+        //         SELECT packageId 
+        //         FROM sys_packageBuilderEvent 
+        //         WHERE sectionType = "flight"
+        //     )
+        //   )';
+            $mainwhere = ' and (statusId <> 5 AND (addedBy="'.$_SESSION['userid'].'" ||   assignTo="'.$_SESSION['userid'].'") OR  statusId = 5  and  queryMaster.id IN (
             SELECT queryId 
             FROM sys_packageBuilder 
             WHERE id IN (
@@ -66,7 +75,7 @@ if ($LoginUserDetails['userType'] != 0) {
                 FROM sys_packageBuilderEvent 
                 WHERE sectionType = "flight"
             )
-          )';
+          ) )';
 
           
       }

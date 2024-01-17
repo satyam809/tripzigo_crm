@@ -1,31 +1,36 @@
 <?php
+include "../config/database.php";
+include "../config/function.php";
+include "../config/setting.php";
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
+header('Access-Control-Allow-Headers: token, Content-Type');
+header('Access-Control-Max-Age: 1728000');
+header('Content-Type: application/json');
+$conn = db();
 // jwt_auth_mysqli.php
 
-function generateJWT($payload, $secretKey) {
+function generateJWT($payload, $secretKey)
+{
     $header = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $payload = base64_encode(json_encode($payload));
     $signature = base64_encode(hash_hmac('sha256', "$header.$payload", $secretKey, true));
     return "$header.$payload.$signature";
 }
 
-function verifyJWT($token, $secretKey) {
-    list($header, $payload, $signature) = explode('.', $token);
-    $expectedSignature = base64_encode(hash_hmac('sha256', "$header.$payload", $secretKey, true));
-    return hash_equals($signature, $expectedSignature);
-}
+// function verifyJWT($token, $secretKey)
+// {
+//     list($header, $payload, $signature) = explode('.', $token);
+//     $expectedSignature = base64_encode(hash_hmac('sha256', "$header.$payload", $secretKey, true));
+//     return hash_equals($signature, $expectedSignature);
+// }
 
-// Database connection parameters
-$servername = "localhost";
-$username = "tripzfp3_tripzfp3";
-$password = "Tripzygo@2703#";
-$dbname = "tripzfp3_tripzfym";
-
-// Sample user data (in a real application, fetch from a database)
 $user = null;
 
 try {
     // Connect to the database using mysqli
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    //$conn = new mysqli($servername, $username, $password, $dbname);
 
     // Check connection
     if ($conn->connect_error) {
@@ -33,7 +38,7 @@ try {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        
+
         $data = json_decode(file_get_contents("php://input"));
 
         $inputUsername = $data->username;
@@ -41,7 +46,7 @@ try {
         // Handle the login request
         // $inputUsername = $_POST['username'];
         // $inputPassword = $_POST['password'];
-       // echo $_POST['username']; exit;
+        // echo $_POST['username']; exit;
         // Sanitize input data if needed
         $inputUsername = $conn->real_escape_string($inputUsername);
 
@@ -56,7 +61,7 @@ try {
             if (md5($inputPassword) == $user['password']) {
                 // Password is correct
                 $jwt = generateJWT(['id' => $user['id'], 'username' => $user['email']], 'your_secret_key');
-                echo json_encode(['token' => $jwt,'message'=>'Login Successfully','status'=>true]);
+                echo json_encode(['token' => $jwt, 'message' => 'Login Successfully', 'status' => true]);
             } else {
                 // Invalid credentials
                 http_response_code(401);
@@ -67,26 +72,23 @@ try {
             http_response_code(401);
             echo json_encode(['error' => 'User not found']);
         }
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Handle the protected route request
-        //print_r($_SERVER); 
-        // Handle the protected route request
-            $token = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] :
-            (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] :
-            (isset($_SERVER['REDIRECT_REMOTE_USER']) ? $_SERVER['REDIRECT_REMOTE_USER'] : null));
+    } 
+    // elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    //     // Handle the protected route request
+    //     //print_r($_SERVER); 
+    //     // Handle the protected route request
+    //     $token = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : (isset($_SERVER['REDIRECT_REMOTE_USER']) ? $_SERVER['REDIRECT_REMOTE_USER'] : null));
 
-            if ($token && verifyJWT($token, 'your_secret_key')) {
-            $decoded = json_decode(base64_decode(explode('.', $token)[1]));
-            echo json_encode(['message' => 'Protected route accessed', 'user' => $decoded]);
-            } else {
-            // Unauthorized: Invalid token
-            http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
-            }
-
-    }
+    //     if ($token && verifyJWT($token, 'your_secret_key')) {
+    //         $decoded = json_decode(base64_decode(explode('.', $token)[1]));
+    //         echo json_encode(['message' => 'Protected route accessed', 'user' => $decoded]);
+    //     } else {
+    //         // Unauthorized: Invalid token
+    //         http_response_code(401);
+    //         echo json_encode(['error' => 'Unauthorized']);
+    //     }
+    // }
 } finally {
     // Close the database connection
     $conn->close();
 }
-?>

@@ -25,7 +25,7 @@ updatelisting('userLogs',$namevalue,$where);
 
 $where = ' user_id="'.$_SESSION['userid'].'" and date(break_start_time)="'.date('Y-m-d').'" and status="scheduled"';
 
-$rs=GetPageRecord('end_time,activity_type','useractivities', $where);
+$rs=GetPageRecord('break_end_time,activity_type','userBreaks', $where);
 $breaksfound=mysqli_num_rows($rs);
 $actual_link = $_REQUEST['page'];
 
@@ -50,11 +50,11 @@ $actual_link = $_REQUEST['page'];
 <?php
 
 while($rest=mysqli_fetch_array($rs)){
-    $break_end = strtotime($rest['end_time']);
+    $break_end = strtotime($rest['break_end_time']);
     $scheduledminutes = (int)(($break_end - time())/60);
     $hours = sprintf("%02d",intdiv($scheduledminutes, 60)).':'. sprintf("%02d",($scheduledminutes % 60));
     if($break_end < time() || $scheduledminutes == 0){
-        updatelisting('useractivities', 'status="processed"', ' user_id="'.$_SESSION['userid'].'" and date(break_start_time)="'.date('Y-m-d').'" and status="scheduled"');
+        updatelisting('userBreaks', 'status="processed"', ' user_id="'.$_SESSION['userid'].'" and date(break_start_time)="'.date('Y-m-d').'" and status="scheduled"');
         ?>
         <script>
             addBreakSchedule();
@@ -94,12 +94,12 @@ if($breaksfound){
 $a=GetPageRecord('SUM(totalMinutes) as totalMinutes','userLogs',' checkoutTime is not null and  userId="'.$_SESSION['userid'].'" and date(cLogin)="'.date('Y-m-d').'"');
 $rest=mysqli_fetch_array($a);
 
-$break_time = GetPageRecord('end_time', 'useractivities', 'activity_type="break" and user_id="' . $_SESSION['userid'] . '" and date(add_date)="' . date('Y-m-d') . '"');
+$break_time = GetPageRecord('break_end_time', 'userBreaks', 'activity_type="break" and user_id="' . $_SESSION['userid'] . '" and date(userDate)="' . date('Y-m-d') . '"');
 $break_rest=mysqli_fetch_array($break_time);
 
 $breakmins=0;
-if($break_rest && $break_rest['end_time']){
-    $breaktimeseconds = strtotime($break_rest['end_time']) - strtotime('00:00:00');
+if($break_rest && $break_rest['break_end_time']){
+    $breaktimeseconds = strtotime($break_rest['break_end_time']) - strtotime('00:00:00');
     $breakmins =  round($breaktimeseconds/ 60);
 }
 

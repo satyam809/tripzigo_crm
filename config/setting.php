@@ -1,13 +1,13 @@
 <?php 
-$fullurl='http://localhost/crm/';
-$landingpage='http://localhost/crm/landing-page/';
-$landingpagedatas='http://localhost/crm/landingpagedata/';
-$websiteurl='http://localhost/crm/';
-$clienturl='http://localhost/crm/client/';
+$fullurl='http://localhost/tripzigo_crm/';
+$landingpage='http://localhost/tripzigo_crm/landing-page/';
+$landingpagedatas='http://localhost/tripzigo_crm/landingpagedata/';
+$websiteurl='http://localhost/tripzigo_crm/';
+$clienturl='http://localhost/tripzigo_crm/client/';
 
 $systemname='Tripzygo';  
-$fullurlproposal='http://localhost/crm/'; 
-$fullurlweb='http://localhost/crm/';  
+$fullurlproposal='http://localhost/tripzigo_crm/'; 
+$fullurlweb='http://localhost/tripzigo_crm/';  
 $footerversion='V. 2.0 - TravBizz'; 
 
 $clientnameglobal='Tripzygo'; 

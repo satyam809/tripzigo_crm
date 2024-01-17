@@ -45,10 +45,11 @@ if ($LoginUserDetails['userType'] != 0) {
         font-size: 12px;
         text-transform: uppercase;
     }
+
 </style>
 
 <form action="frmaction.html" method="post" enctype="multipart/form-data" name="addeditfrm" target="actoinfrm"
-      id="addeditfrm">
+      id="addeditfrm" onsubmit="showLoading()">
     <div class="col-lg-12">
         <div class="row">
             <div class="col-lg-12">
@@ -64,7 +65,7 @@ if ($LoginUserDetails['userType'] != 0) {
                                    value="<?php echo stripslashes($editresult['phone']); ?><?php echo stripslashes($clientDetails['mobile']); ?><?php if ($_REQUEST['chatid'] != '') {
                                        echo stripslashes($_REQUEST['mobile']);
                                    } ?>" onblur="hidensearchclient();" autocomplete="nope"
-                                   onkeyup="searchclients('searchname','mobile');createtitile();">
+                                   onkeyup="searchclients('searchname','mobile');createtitile();" required>
                             <div class="clientsearchdiv" id="searchname"
                                  style="display:none; position: absolute; left: 0px; top: 57px; width: 100%; display: none; z-index: 999; background-color: rgb(255, 255, 255); border: 2px solid rgb(36, 41, 62); box-shadow: rgba(0, 0, 0, 0.45) 0px 0px 10px;"></div>
                         </div>
@@ -88,7 +89,7 @@ if ($LoginUserDetails['userType'] != 0) {
                                 <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                             </div>
                             <input type="email" id="email" name="email" class="form-control" placeholder="Email"
-                                   value="<?php echo stripslashes($editresult['email']); ?><?php echo stripslashes($clientDetails['email']); ?>">
+                                   value="<?php echo stripslashes($editresult['email']); ?><?php echo stripslashes($clientDetails['email']); ?>" required>
                         </div>
                     </div>
                     <div class="col-lg-3">
@@ -117,6 +118,26 @@ if ($LoginUserDetails['userType'] != 0) {
                                         <?php } ?><?php if ($clientDetails['submitName'] == 'Prof.'){ ?>selected="selected"<?php } ?>>
                                     Prof.
                                 </option>
+                                <option value="Lt."
+                                <?php if ($editresult['submitName'] == 'Lt.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Lt.'){ ?>selected="selected"<?php } ?>>
+                                    Lt.</option>
+                                <option value="Capt."
+                                <?php if ($editresult['submitName'] == 'Capt.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Capt.'){ ?>selected="selected"<?php } ?>>
+                                    Capt.</option>
+                                <option value="Maj."
+                                 <?php if ($editresult['submitName'] == 'Maj.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Maj.'){ ?>selected="selected"<?php } ?>>Maj.
+                                </option>
+                                <option value="Col."<?php if ($editresult['submitName'] == 'Col.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Col.'){ ?>selected="selected"<?php } ?>>
+                                    Col.</option>
+                                <option value="Gen."<?php if ($editresult['submitName'] == 'Gen.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Gen.'){ ?>selected="selected"<?php } ?>>Gen.</option>
+                                <option value="Adm."<?php if ($editresult['submitName'] == 'Adm.'){ ?>selected="selected"
+                                        <?php } ?><?php if ($clientDetails['submitName'] == 'Adm.'){ ?>selected="selected"<?php } ?>>
+                                    Adm.</option>
                             </select>
                         </div>
                     </div>
@@ -130,7 +151,7 @@ if ($LoginUserDetails['userType'] != 0) {
                             <input type="text" id="name" name="name" class="form-control redborder" placeholder="Name"
                                    value="<?php echo stripslashes($editresult['name']); ?><?php echo stripslashes($clientDetails['firstName']); ?><?php if ($_REQUEST['chatid'] != '') {
                                        echo stripslashes($_REQUEST['name']);
-                                   } ?>">
+                                   } ?>" required>
                             <script>
                                 function searchclients(divname, fieldname) {
                                     <?php if($_REQUEST['chatid'] == ''){ ?>
@@ -154,7 +175,7 @@ if ($LoginUserDetails['userType'] != 0) {
             <hr/>
             <div class="col-lg-12">
                 <div class="row">
-                    <div class="col-lg-6" style="display:none;">
+                    <!-- <div class="col-lg-6" style="display:none;">
                         <div class="form-group">
                             <label for="validationCustom02">From City <span class="redmtext">*</span></label>
                             <input type="text" class="form-control"
@@ -166,7 +187,7 @@ if ($LoginUserDetails['userType'] != 0) {
                             <div style="height:0px; font-size:0px; position:relative;  "
                                  id="searchcitylistsfromCity"></div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label for="validationCustom02">Destination <span class="redmtext">*</span></label>
@@ -179,11 +200,18 @@ if ($LoginUserDetails['userType'] != 0) {
                             <div style="height:0px; font-size:0px; position:relative;  " id="searchcitylists"></div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <!-- <div class="col-lg-6">
                         <div class="form-group">
                             <label for="validationCustom02">Travel Month</label>
                             <input type="text" class="form-control redborder" id="travelMonth" name="travelMonth"
                                    value="<?php echo $editresult['travelMonth']; ?>">
+                        </div>
+                    </div> -->
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="validationCustom02">Departure City</label>
+                            <input type="text" class="form-control redborder" id="departureCity" name="departureCity"
+                                   value="<?php echo $editresult['destination_city']; ?>">
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -246,22 +274,11 @@ if ($LoginUserDetails['userType'] != 0) {
                                    value="<?php echo $editresult['travelMonth']; ?>">
                         </div>
                     </div>
-                    <div class="col-lg-6" style="display:none">
-                        <div class="form-group">
-                            <label for="validationCustom02">Service</label>
-                            <select id="serviceId" name="serviceId" class="form-control" displayname="country"
-                                    autocomplete="off">
-                                <option value="0">Select Service</option>
-                                <?php
-                                $rs = GetPageRecord('*', 'queryServicesMaster', ' 1 order by name asc');
-                                while ($rest = mysqli_fetch_array($rs)) {
-                                    ?>
-                                    <option value="<?php echo $rest['id']; ?>"
-                                            <?php if ($rest['id'] == $editresult['serviceId']){ ?>selected="selected"<?php } ?>><?php echo $rest['name']; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
+
+                    
+
+
+                   
                     <div class="col-lg-4">
                         <div class="form-group input-group">
                             <label for="validationCustom02">Adult <span class="redmtext">*</span></label>
@@ -317,13 +334,15 @@ if ($LoginUserDetails['userType'] != 0) {
                             </select>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <input type="hidden" name="addedBy" value="<?php echo $_SESSION['userid'] ?>" >
+                    <!-- <div class="col-lg-4">
                         <div class="form-group">
                             <label for="validationCustom02">Select Lead Added By </label>
                             <select id="addedBy" name="addedBy" class="select2 form-control" autocomplete="off">
+                             
                                 <option value="0" <?php if ($editresult['addedBy'] == 0){ ?>selected="selected"<?php } ?>>Select Lead Added By</option>
                                 <?php
-                                $rs = GetPageRecord('*', 'sys_userMaster', ' 1 and status=1 ' . $mainwhereassignfield . ' order by firstName asc');
+                                $rs = GetPageRecord('*', 'sys_userMaster', ' 1 ' . $mainwhereassignfield . ' order by firstName asc');
                                 while ($rest = mysqli_fetch_array($rs)) {
                                     ?>
                                     <option value="<?php echo $rest['id']; ?>"
@@ -331,7 +350,7 @@ if ($LoginUserDetails['userType'] != 0) {
                                 <?php } ?>
                             </select>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="validationCustom02">Priority <span class="redmtext">*</span></label>
@@ -366,8 +385,8 @@ if ($LoginUserDetails['userType'] != 0) {
                         <div class="form-group">
                             <label for="validationCustom02">Service</label>
                             <select id="serviceId" name="serviceId" class="form-control" displayname="country"
-                                    autocomplete="off">
-                                <option value="0">Select Service</option>
+                                    autocomplete="off" required>
+                                <option value="" disabled selected>Select Service</option>
                                 <?php
                                 $rs = GetPageRecord('*', 'queryServicesMaster', ' 1 order by name asc');
                                 while ($rest = mysqli_fetch_array($rs)) {
@@ -392,8 +411,10 @@ if ($LoginUserDetails['userType'] != 0) {
     <div class="modal-footer">
         <input name="Cancel" type="button" value="Cancel" aria-label="Close"
                class="btn btn-secondary btn-lg waves-effect waves-light btn-primary-gray" onclick="createqueryclose()">
-        <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary"
-               onclick="this.form.submit(); this.disabled=true; this.value='Saving...';">
+        <!-- <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary"
+               onclick="this.form.submit(); this.disabled=true; this.value='Saving...';"> -->
+        <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary" >
+        <div id="loading"></div>
         <input autocomplete="false" name="action" type="hidden" id="action" value="addQuery"/>
         <input autocomplete="false" name="clientId" type="hidden" id="clientId"
                value="<?php echo encode($editresult['clientId']); ?><?php echo encode($clientDetails['id']); ?>"/>
@@ -401,3 +422,4 @@ if ($LoginUserDetails['userType'] != 0) {
         <input autocomplete="false" name="chatid" type="hidden" id="chatid" value="<?php echo $_REQUEST['chatid']; ?>"/>
     </div>
 </form>
+

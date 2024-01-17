@@ -1,7 +1,18 @@
 <?php
 ob_start();
+
 if ($_REQUEST['sts'] > 0 && $_REQUEST['sts'] < 13) {
-    $namevalue = 'statusId="' . $_REQUEST['sts'] . '"';
+    // echo "<pre>";
+    // print_r($_REQUEST);
+    // echo "</pre>";
+    // die;
+    //$namevalue = 'statusId="' . $_REQUEST['sts'] . '"';
+    $namevalue = 'statusId="' . $_REQUEST['sts'] . '",status_updateDate="' . date('Y-m-d H:i:s') . '",updateDate="' . date('Y-m-d H:i:s') . '"';
+    // add by sonam for cancellation
+    if ($_REQUEST['sts'] == 6) {
+        $namevalue .= ',query_cancel="' . $_REQUEST['query_cancel'] . '"';
+    }
+
     $userId = $_REQUEST['userId'];
     $where = 'id="' . decode($_REQUEST['id']) . '"';
     updatelisting('queryMaster', $namevalue, $where);
@@ -11,11 +22,20 @@ if ($_REQUEST['sts'] > 0 && $_REQUEST['sts'] < 13) {
 
     $namevalue3 = 'details="Query Status Changed: ' . $stausdata['name'] . '",queryId="' . decode($_REQUEST['id']) . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . date('Y-m-d H:i:s') . '",userId="' . $userId . '",logType="status_change"';
     addlisting('queryLogs', $namevalue3);
+    // add by sonam for cancellation 
+    if (isset($_REQUEST['sts']) && $_REQUEST['sts'] != 1) { // changed by satyam
+        $queryid = decode($_REQUEST['id']);
+        $details = addslashes($_REQUEST['query_cancel']);
+        $addedBy = $_SESSION['userid'];
+        $dateAdded = date('Y-m-d H:i:s');
+        $namevalue = 'queryId="' . $queryid . '",details="' . $_REQUEST['details'] . '",addedBy="' . $addedBy . '",status="' . $_REQUEST['sts'] . '",dateAdded="' . $dateAdded . '"'; // changed by satyam
+        addlisting('queryNotes', $namevalue);
+    }
+
 
     sendautomationmail(decode($_REQUEST['id']), $fullurlproposal);
 
     header('Location:display.html?ga=query&view=1&id=' . $_REQUEST['id'] . '');
-
 }
 
 
@@ -33,7 +53,6 @@ if ($_REQUEST['id'] != '') {
 
         $startDate = date('d-m-Y', strtotime($editresult['startDate']));
         $endDate = date('d-m-Y', strtotime($editresult['endDate']));
-
     }
 
 
@@ -118,7 +137,8 @@ exit();
 </script>
 
 <style>
-    .table td, .table th {
+    .table td,
+    .table th {
         vertical-align: top;
     }
 
@@ -129,7 +149,8 @@ exit();
         text-transform: uppercase;
     }
 
-    .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    .nav-tabs .nav-item.show .nav-link,
+    .nav-tabs .nav-link.active {
         color: #495057;
         background-color: #6c757d;
         border-color: #dee2e6 #dee2e6 #fff;
@@ -179,24 +200,18 @@ exit();
                     <div class="col-md-12 col-xl-12">
                         <div class="card" style="min-height:500px;">
                             <div class="card-body">
-                                <h4 class="card-title mobilemargianbottomzero"
-                                    style=" margin-top:0px; overflow:hidden;">Query
+                                <h4 class="card-title mobilemargianbottomzero" style=" margin-top:0px; overflow:hidden;">Query
                                     ID: <?php echo encode($editresult['id']); ?> <?php if ($editresult['priorityStatus'] == 1) { ?>
-                                        <img src="images/hot.gif" width="40" height="27"/><?php } ?>
+                                        <img src="images/hot.gif" width="40" height="27" /><?php } ?>
 
                                     <div class="float-right">
                                         <?php if (strpos($LoginUserDetails["permissionAddEdit"], 'Query') !== false) { ?>
-                                            <a href="#"
-                                               onclick="createquery('<?php echo encode($editresult['id']); ?>');"  >
-                                                <button type="button"
-                                                        class="btn btn-secondary btn-lg waves-effect waves-light"
-                                                        style="margin-bottom:10px;">Edit Query
+                                            <a href="#" onclick="createquery('<?php echo encode($editresult['id']); ?>');">
+                                                <button type="button" class="btn btn-secondary btn-lg waves-effect waves-light" style="margin-bottom:10px;">Edit Query
                                                 </button></a><?php } ?>
 
                                         <a href="display.html?ga=query">
-                                            <button type="button"
-                                                    class="btn btn-primary btn-lg waves-effect waves-light"
-                                                    style="margin-bottom:10px;">Back
+                                            <button type="button" class="btn btn-primary btn-lg waves-effect waves-light" style="margin-bottom:10px;">Back
                                             </button>
                                         </a>
                                     </div>
@@ -207,144 +222,67 @@ exit();
                                         <div class="row" style="margin-right: 0px; margin-left: 0px;">
                                             <div class="col-md-12 col-xl-12">
 
-                                                <ul class="nav nav-tabs nav-tabs-custom"
-                                                    style="border-bottom:0px solid #dee2e6;">
+                                                <ul class="nav nav-tabs nav-tabs-custom" style="border-bottom:0px solid #dee2e6;">
 
-                                                    <li class="nav-item"><a
-                                                                class="nav-link<?php if ($_REQUEST['c'] == '') { ?> active show<?php } ?>"
-                                                                href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>"><span
-                                                                    class="d-none d-md-block"><i class="fa fa-id-card-o"
-                                                                                                 aria-hidden="true"></i> &nbsp;Query Details</span><span
-                                                                    class="d-block d-md-none"><i
-                                                                        class="mdi mdi-home-variant h5"></i></span></a>
+                                                    <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == '') { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>"><span class="d-none d-md-block"><i class="fa fa-id-card-o" aria-hidden="true"></i> &nbsp;Query Details</span><span class="d-block d-md-none"><i class="mdi mdi-home-variant h5"></i></span></a>
                                                     </li>
 
                                                     <?php if ($clientData['firstName'] != '' && $startDate != '' && $endDate != '') { ?>
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Proposal') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 2) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=2"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-list-alt"
-                                                                                aria-hidden="true"></i> &nbsp;Proposal</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-account h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 2) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=2"><span class="d-none d-md-block"><i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp;Proposal</span><span class="d-block d-md-none"><i class="mdi mdi-account h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Mails') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 7) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=7"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-envelope-o"
-                                                                                aria-hidden="true"></i> &nbsp;Mails</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 7) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=7"><span class="d-none d-md-block"><i class="fa fa-envelope-o" aria-hidden="true"></i> &nbsp;Mails</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Task') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 3) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=3"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-calendar-check-o"
-                                                                                aria-hidden="true"></i> &nbsp;Followup's</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-email h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 3) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=3"><span class="d-none d-md-block"><i class="fa fa-calendar-check-o" aria-hidden="true"></i> &nbsp;Followup's</span><span class="d-block d-md-none"><i class="mdi mdi-email h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Suppliers') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 4) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=4"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-users"
-                                                                                aria-hidden="true"></i> &nbsp;Suppliers Comm.</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 4) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=4"><span class="d-none d-md-block"><i class="fa fa-users" aria-hidden="true"></i> &nbsp;Suppliers Comm.</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'TourExpences') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 9) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=9"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-credit-card-alt"
-                                                                                aria-hidden="true"></i> &nbsp;Post Sales Supplier</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 9) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=9"><span class="d-none d-md-block"><i class="fa fa-credit-card-alt" aria-hidden="true"></i> &nbsp;Post Sales Supplier</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'PaymentLinks') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 11) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=11"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-rupee"
-                                                                                aria-hidden="true"></i> &nbsp;Payment Links </span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 11) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=11"><span class="d-none d-md-block"><i class="fa fa-rupee" aria-hidden="true"></i> &nbsp;Payment Links </span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Operation') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 8) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=8"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-check-square-o"
-                                                                                aria-hidden="true"></i> &nbsp;Voucher</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 8) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=8"><span class="d-none d-md-block"><i class="fa fa-check-square-o" aria-hidden="true"></i> &nbsp;Voucher</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Billing') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 5) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=5"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-file-text"
-                                                                                aria-hidden="true"></i> &nbsp;Billing</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 5) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=5"><span class="d-none d-md-block"><i class="fa fa-file-text" aria-hidden="true"></i> &nbsp;Billing</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'Guest') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 10) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=10"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-user"
-                                                                                aria-hidden="true"></i> &nbsp;Guest Docs.</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 10) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=10"><span class="d-none d-md-block"><i class="fa fa-user" aria-hidden="true"></i> &nbsp;Guest Docs.</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
                                                         <?php } ?>
 
                                                         <?php if (strpos($LoginUserDetails["permissionView"], 'History') !== false) { ?>
-                                                            <li class="nav-item"><a
-                                                                        class="nav-link<?php if ($_REQUEST['c'] == 6) { ?> active show<?php } ?>"
-                                                                        href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=6"><span
-                                                                            class="d-none d-md-block"><i
-                                                                                class="fa fa-clock-o"
-                                                                                aria-hidden="true"></i> &nbsp;History</span><span
-                                                                            class="d-block d-md-none"><i
-                                                                                class="mdi mdi-settings h5"></i></span></a>
+                                                            <li class="nav-item"><a class="nav-link<?php if ($_REQUEST['c'] == 6) { ?> active show<?php } ?>" href="display.html?ga=query&view=1&id=<?php echo encode($editresult['id']); ?>&c=6"><span class="d-none d-md-block"><i class="fa fa-clock-o" aria-hidden="true"></i> &nbsp;History</span><span class="d-block d-md-none"><i class="mdi mdi-settings h5"></i></span></a>
                                                             </li>
-                                                        <?php } ?><?php } ?>
+                                                            <?php } ?><?php } ?>
                                                 </ul>
 
                                             </div>
@@ -381,7 +319,8 @@ exit();
 
 
     </div>
-</div>    </div>
+</div>
+</div>
 
 
 <script>

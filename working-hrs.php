@@ -7,8 +7,8 @@ if (!empty($_POST['activity']) && $_POST['activity'] == 'start') {
     $add_date = date('Y-m-d');
     $user_id = $_SESSION['userid'];
     $activityType = mysqli_real_escape_string(db(), $_POST['activityType']);
-
-    $insertSql = "INSERT INTO useractivities (user_id, add_date, start_time, activity_type) VALUES ('$user_id', '$add_date', CURTIME(), '$activityType')";
+    $current_time = date("H:i:s");
+    $insertSql = "INSERT INTO useractivities (user_id, add_date, start_time, activity_type) VALUES ('$user_id', '$add_date', '$current_time', '$activityType')";
 
     $result = mysqli_query(db(), $insertSql);
 
@@ -35,8 +35,8 @@ if (!empty($_POST['activity']) && $_POST['activity'] == 'stop') {
     $insertedId = mysqli_real_escape_string(db(), $_POST['insertedId']);
 
     $total_min = calculate_total_min($user_id, $insertedId, $add_date, $activityType);
-
-    $updateSql = "UPDATE useractivities SET minutes = '$total_min', end_time = CURTIME() WHERE user_id = '$user_id' AND id = '$insertedId' AND add_date = '$add_date' AND activity_type = '$activityType'";
+    $current_time = date("H:i:s");
+    $updateSql = "UPDATE useractivities SET minutes = '$total_min', end_time = '$current_time' WHERE user_id = '$user_id' AND id = '$insertedId' AND add_date = '$add_date' AND activity_type = '$activityType'";
 
     $result = mysqli_query(db(), $updateSql);
 
@@ -59,38 +59,50 @@ if (!empty($_POST['activity']) && $_POST['activity'] == 'stop') {
 if (!empty($_POST['working_hour']) && $_POST['working_hour'] == 1) {
     if (isset($_SESSION['userid']) && !empty($_SESSION['userid'])) {
         $userId = mysqli_real_escape_string(db(), $_SESSION['userid']);
+        $todayDate = date('Y-m-d');
+        $userLogsQuery = mysqli_query(db(), "SELECT * FROM userLogs WHERE userid = '$userId' AND DATE(cLogin) = '$todayDate'");
+        //print_r($userLogsQuery);die;
+        $userLogs = [];
+        while ($logRow = mysqli_fetch_assoc($userLogsQuery)) {
+            $userLogs[] = $logRow;
+        }
+        //print_r($userLogs);die;
+        if (count($userLogs) > 0) {
+            $loginTimestamps = array_map(function ($log) {
+                return strtotime($log['cLogin']);
+            }, $userLogs);
+            // Find the minimum 'cLogin' timestamp
+            $minLoginTimestamp = min($loginTimestamps);
 
-        // Calculate total login minutes for the user
-        $sql = "SELECT totalMinutes 
-                FROM userLogs 
-                WHERE checkoutTime IS NOT NULL 
-                AND userId = '$userId' 
-                AND DATE(cLogin) = DATE(NOW())";
+            $start_time = $minLoginTimestamp;
+            $end_time = strtotime(empty($userLogs[0]['checkoutTime']) ? date('Y-m-d H:i:s') : $userLogs[0]['checkoutTime']);
+            //echo $end_time;die;
+            // Set 9 PM as the cutoff time
+            $cuttoff_time = strtotime(date('Y-m-d 21:00:00'));
 
-        $result = mysqli_query(db(), $sql) or die(mysqli_error(db()));
-        $row = mysqli_fetch_assoc($result);
-        $totalLoginMinutes = $row['totalMinutes'];
-        //print_r($row['totalMinutes']);die;
-        // Calculate total break minutes for the user for the current date
-        $add_date = date('Y-m-d');
-        $add_date = mysqli_real_escape_string(db(), $add_date);
+            // If the end time is after 9 PM, limit it to 9 PM
+            if ($end_time > $cuttoff_time) {
+                $end_time = $cuttoff_time;
+            }
 
-        $sql2 = "SELECT SUM(minutes) AS totalBreakMinutes 
-                 FROM userActivities 
-                 WHERE activity_type = 1 AND user_id = '$userId' 
-                 AND add_date = '$add_date'";
+            // Calculate the total login time within the limit of 9 PM
+            $totalLoginTime = $end_time - $start_time;
 
-        $result2 = mysqli_query(db(), $sql2);
 
-        if ($result2) {
-            $row2 = mysqli_fetch_assoc($result2);
-            $totalBreakMinutes = $row2['totalBreakMinutes'];
+            $sqlBreak = "SELECT SUM(minutes) AS totalBreakMinutes FROM useractivities WHERE activity_type = 1 AND user_id = '$userId' AND add_date = '$todayDate'";
+            //echo $sqlBreak;die;
+            
+            $breakResult = mysqli_query(db(), $sqlBreak);
+            $totalBreakMinutes = 0;
 
-            // Calculate total working minutes by subtracting break minutes from login minutes
-            $totalWorkingMinutes = $totalLoginMinutes - $totalBreakMinutes;
+            if ($breakResult) {
+                $breakRow = mysqli_fetch_assoc($breakResult);
+                $totalBreakMinutes = $breakRow['totalBreakMinutes'];
+            }
+            
+
+            $totalWorkingMinutes = round(($totalLoginTime / 60) - $totalBreakMinutes, 2);
             echo json_encode(['status' => true, 'data' => $totalWorkingMinutes]);
-        } else {
-            echo json_encode(['status' => false, 'Error' => "Error executing query: " . mysqli_error(db())]);
         }
     }
 }

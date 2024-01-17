@@ -1,9 +1,6 @@
 <?php
 
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
 use Razorpay\Api\Api;
 
 include "inc.php";
@@ -38,7 +35,7 @@ if (trim($_POST['action']) == 'updateProfile' && trim($_POST['firstName']) != ''
   $emailsignature = addslashes($_POST['emailsignature']);
 
   $oldphoto = addslashes($_POST['oldchangeprofilepic']);
-  $submitName = addslashes($_POST['submitName']);
+  $submitName = addslashes($_POST['subemitName']);
 
   $editid = decode($_POST['editId']);
 
@@ -159,48 +156,48 @@ if (trim($_REQUEST['action']) == 'changetheme' && $_SESSION['userid'] != '' && $
 
 
 if (trim($_POST['action']) == 'addstaff' && trim($_POST['firstName']) != '' && trim($_POST['lastName']) != '' && trim($_POST['email']) != '') {
-    include "config/mail.php";
-    $email = addslashes($_POST['email']);
-    $old_email = addslashes($_POST['old_email']);
-    $branchId = addslashes($_POST['branchId']);
-    $phone = addslashes($_POST['phone']);
-    $userType = addslashes($_POST['userType']);
-    $mobile = addslashes($_POST['mobile']);
-    $city = addslashes($_POST['city']);
-    $state = addslashes($_POST['stateId']);
-    $country = addslashes($_POST['countryId']);
-    $firstName = addslashes($_POST['firstName']);
-    $lastName = addslashes($_POST['lastName']);
-    $countryCode = addslashes($_POST['countryCode']);
-    $status = ($_POST['status']);
-    $countryCode = addslashes($_POST['countryCode']);
-    $profile = addslashes($_POST['profile']);
-    $profile = addslashes($_POST['profile']);
-    $showQueryStatus = addslashes($_POST['showQueryStatus']);
-    $editid = decode($_POST['editId']);
+  include "config/mail.php";
+  $email = addslashes($_POST['email']);
+  $old_email = addslashes($_POST['old_email']);
+  $branchId = addslashes($_POST['branchId']);
+  $phone = addslashes($_POST['phone']);
+  $userType = addslashes($_POST['userType']);
+  $mobile = addslashes($_POST['mobile']);
+  $city = addslashes($_POST['city']);
+  $state = addslashes($_POST['stateId']);
+  $country = addslashes($_POST['countryId']);
+  $firstName = addslashes($_POST['firstName']);
+  $lastName = addslashes($_POST['lastName']);
+  $countryCode = addslashes($_POST['countryCode']);
+  $status = ($_POST['status']);
+  $countryCode = addslashes($_POST['countryCode']);
+  $profile = addslashes($_POST['profile']);
+  $profile = addslashes($_POST['profile']);
+  $showQueryStatus = addslashes($_POST['showQueryStatus']);
+  $editid = decode($_POST['editId']);
 
-    $permissionView = '';
-    foreach ($_POST['permissionView'] as $check) {
-        $permissionView .= $check . ',';
-    }
+  $permissionView = '';
+  foreach ($_POST['permissionView'] as $check) {
+    $permissionView .= $check . ',';
+  }
 
-    $permissionAddEdit = '';
-    foreach ($_POST['permissionAddEdit'] as $check) {
-        $permissionAddEdit .= $check . ',';
-    }
+  $permissionAddEdit = '';
+  foreach ($_POST['permissionAddEdit'] as $check) {
+    $permissionAddEdit .= $check . ',';
+  }
 
-    $randPass = rand(999999, 100000);
+  $randPass = rand(999999, 100000);
 
-    $ccmail = '';
-    $file_name = '';
+  $ccmail = '';
+  $file_name = '';
 
 
-    $a = GetPageRecord('*', 'sys_userMaster', '  id=1');
-    $invoiceData = mysqli_fetch_array($a);
+  $a = GetPageRecord('*', 'sys_userMaster', '  id=1');
+  $invoiceData = mysqli_fetch_array($a);
 
-    $subject = strip($invoiceData['invoiceCompany']) . ' Assistance';
+  $subject = strip($invoiceData['invoiceCompany']) . ' Assistance';
 
-    $mailbody = 'Dear ' . $firstName . ',<br /><br />
+  $mailbody = 'Dear ' . $firstName . ',<br /><br />
 You have received this communication in response to the request for your ' . strip($invoiceData['invoiceCompany']) . ' System account password to be sent to you via e-mail.<br /><br />
 Temporary Password: ' . $randPass . '<br /><br />
 Please change your password as soon as possible, to ensure total privacy and confidentiality.<br /><br /> 
@@ -210,58 +207,58 @@ We hope to see you onboard again soon!<br /><br />
 ' . strip($invoiceData['emailsignature']) . '';
 
 
-    if ($_FILES["changeprofilepic"]["tmp_name"] != "") {
-        $rt = mt_rand() . strtotime(date("YMDHis"));
-        $companyLogoFileName = basename($_FILES['changeprofilepic']['name']);
-        $companyLogoFileExtension = pathinfo($companyLogoFileName, PATHINFO_EXTENSION);
-        $profilePhoto = time() . $rt . '.' . $companyLogoFileExtension;
-        move_uploaded_file($_FILES["changeprofilepic"]["tmp_name"], "profilepic/{$profilePhoto}");
-    }
-    if ($profilePhoto == '') {
-        $profilePhoto = $oldphoto;
-    }
+  if ($_FILES["changeprofilepic"]["tmp_name"] != "") {
+    $rt = mt_rand() . strtotime(date("YMDHis"));
+    $companyLogoFileName = basename($_FILES['changeprofilepic']['name']);
+    $companyLogoFileExtension = pathinfo($companyLogoFileName, PATHINFO_EXTENSION);
+    $profilePhoto = time() . $rt . '.' . $companyLogoFileExtension;
+    move_uploaded_file($_FILES["changeprofilepic"]["tmp_name"], "profilepic/{$profilePhoto}");
+  }
+  if ($profilePhoto == '') {
+    $profilePhoto = $oldphoto;
+  }
 
-    $a = GetPageRecord('*', 'sys_userMaster', 'email="' . $old_email . '" and (userType=1 or userType=2)');
-    $validateemail = mysqli_fetch_array($a);
+  $a = GetPageRecord('*', 'sys_userMaster', 'email="' . $old_email . '" and (userType=1 or userType=2)');
+  $validateemail = mysqli_fetch_array($a);
 
-    if ($editid != '') {
+  if ($editid != '') {
 
-        if ($_POST['sendpass'] == 1) {
-            $password = md5($randPass);
-            send_attachment_mail($fromemail, $email, $subject, $mailbody, $ccmail . ',' . $_SESSION['username'], $file_name);
-        } else {
-            $password = $validateemail['password'];
-        }
-
-
-        $namevalue = 'showQueryStatus="' . $showQueryStatus . '",email="' . $email . '",phone="' . $phone . '",branchId="' . $branchId . '",password="' . $password . '",firstName="' . $firstName . '",lastName="' . $lastName . '",status="' . $status . '",userType="' . $userType . '",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",permissionView="' . rtrim($permissionView, ',') . '",permissionAddEdit="' . rtrim($permissionAddEdit, ',') . '"';
-        $where = 'id="' . $editid . '"';
-        updatelisting('sys_userMaster', $namevalue, $where);
-        $lstaddid = $editid;
+    if ($_POST['sendpass'] == 1) {
+      $password = md5($randPass);
+      send_attachment_mail($fromemail, $email, $subject, $mailbody, $ccmail . ',' . $_SESSION['username'], $file_name);
     } else {
-        if ($validateemail['id'] == '') {
-            $namevalue = 'email="' . $email . '",firstName="' . $firstName . '",phone="' . $phone . '",branchId="' . $branchId . '",lastName="' . $lastName . '",status="' . $status . '",userType="' . $userType . '",password="' . md5($randPass) . '",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",permissionView="' . rtrim($permissionView, ',') . '",permissionAddEdit="' . rtrim($permissionAddEdit, ',') . '"';
-            $lstaddid = addlistinggetlastid('sys_userMaster', $namevalue);
-
-            send_attachment_mail($fromemail, $email, $subject, $mailbody, $ccmail . ',' . $_SESSION['username'], $file_name);
-        } else {
-            ?>
-            <script>
-                alert('This email is already exists!');
-                parent.$('.animated-progess').hide();
-                parent.$('#stoppagediv').hide();
-            </script>
-            <?php
-            exit();
-        }
+      $password = $validateemail['password'];
     }
 
 
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=team&save=1');
-    </script>
-    <?php
+    $namevalue = 'showQueryStatus="' . $showQueryStatus . '",email="' . $email . '",phone="' . $phone . '",branchId="' . $branchId . '",password="' . $password . '",firstName="' . $firstName . '",lastName="' . $lastName . '",status="' . $status . '",userType="' . $userType . '",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",permissionView="' . rtrim($permissionView, ',') . '",permissionAddEdit="' . rtrim($permissionAddEdit, ',') . '"';
+    $where = 'id="' . $editid . '"';
+    updatelisting('sys_userMaster', $namevalue, $where);
+    $lstaddid = $editid;
+  } else {
+    if ($validateemail['id'] == '') {
+      $namevalue = 'email="' . $email . '",firstName="' . $firstName . '",phone="' . $phone . '",branchId="' . $branchId . '",lastName="' . $lastName . '",status="' . $status . '",userType="' . $userType . '",password="' . md5($randPass) . '",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",permissionView="' . rtrim($permissionView, ',') . '",permissionAddEdit="' . rtrim($permissionAddEdit, ',') . '"';
+      $lstaddid = addlistinggetlastid('sys_userMaster', $namevalue);
+
+      send_attachment_mail($fromemail, $email, $subject, $mailbody, $ccmail . ',' . $_SESSION['username'], $file_name);
+    } else {
+  ?>
+      <script>
+        alert('This email is already exists!');
+        parent.$('.animated-progess').hide();
+        parent.$('#stoppagediv').hide();
+      </script>
+  <?php
+      exit();
+    }
+  }
+
+
+  ?>
+  <script>
+    parent.redirectpage('display.html?ga=team&save=1');
+  </script>
+<?php
 }
 
 
@@ -391,13 +388,13 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
   $aboutPackage = addslashes($_POST['aboutPackage']);
   $packageThemeId = addslashes($_POST['packageThemeId']);
   $showwebsite = (isset($_POST['showwebsite']) && !empty($_POST['showwebsite'])) ? addslashes($_POST['showwebsite']) :
-      "0";
+    "0";
   $websiteCost = (isset($_POST['websiteCost']) && !empty($_POST['websiteCost'])) ? addslashes($_POST['websiteCost']) :
-      "0";
+    "0";
   $showinPopular = (isset($_POST['showinPopular']) && !empty($_POST['showinPopular'])) ? addslashes($_POST['showinPopular']) :
-      "0";
+    "0";
   $showinSpecial = (isset($_POST['showinSpecial']) && !empty($_POST['showinSpecial'])) ? addslashes($_POST['showinSpecial']) :
-      "0";
+    "0";
   $notes = addslashes($_POST['notes']);
   $location = addslashes($_POST['location']);
   $hotel = addslashes($_POST['hotel']);
@@ -411,13 +408,13 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
   $landscape_type = $_POST['landscape_type'];
   $publicly_visible = $_POST['publicly_visible'];
   $website_visible = $_POST['website_visible'];
-  $mapURL = mysqli_real_escape_string(db(),$_POST['mapURL']);
-  $keywords = mysqli_real_escape_string(db(),$_POST['keywords']);
+  $mapURL = mysqli_real_escape_string(db(), $_POST['mapURL']);
+  $keywords = mysqli_real_escape_string(db(), $_POST['keywords']);
   $web_pack_price = $_POST['web_pack_price'];
   $destination_search = $_POST['destination_search'];
   $slug = $_POST['slug'];
   $package_rating = $_POST['package_rating'];
-  $hotel_facility = implode(',',$_POST['hotel_facility']);
+  $hotel_facility = implode(',', $_POST['hotel_facility']);
 
   if ($_POST['queryid'] != '') {
     $queryId = decode($_POST['queryid']);
@@ -433,17 +430,17 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
   if ($editId != '') {
     deleteRecord('Taggings', 'tagable_id="' . decode($editId) . '" and taggable_type="itinerary"');
 
-    if(isset($tagging) && !empty($tagging)) {
-        $tags_id = explode(",", $tagging);
-        if(is_array($tags_id) && (count($tags_id) > 0) && (!empty($tags_id[0]))) {
-            foreach ($tags_id as $val) {
-                $taggings_value = 'tags_id="' . $val . '",tagable_id="' . decode($editId) . '",taggable_type="itinerary"';
-                $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);
-            }
+    if (isset($tagging) && !empty($tagging)) {
+      $tags_id = explode(",", $tagging);
+      if (is_array($tags_id) && (count($tags_id) > 0) && (!empty($tags_id[0]))) {
+        foreach ($tags_id as $val) {
+          $taggings_value = 'tags_id="' . $val . '",tagable_id="' . decode($editId) . '",taggable_type="itinerary"';
+          $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);
         }
+      }
     }
 
-    $namevalue = 'name="' . $name . '",startDate="' . $startDate . '",endDate="' . $endDate . '",adult="' . $adult . '",child="' . $child . '",days="' . $days . '",websiteCost="' . $websiteCost . '",websiteValidity="' . $websiteValidity . '",showwebsite="' . $showwebsite . '",destinations="' . $destinations . '",relate_key="' . $relate_key . '",aboutPackage="' . $aboutPackage . '",packageThemeId="' . $packageThemeId . '",showinPopular="' . $showinPopular . '",showinSpecial="' . $showinSpecial . '",notes="' . $notes . '",location="' . $location . '",hotel="' . $hotel . '",description="' . $description . '",destination_type="' . $destination_type . '",tour_type="' . $tour_type . '",activity_type="' . $activity_type . '",landscape_type="' . $landscape_type . '",publicly_visible="' . $publicly_visible .'", website_visible="'.$website_visible.'", mapURL="'.$mapURL.'",keywords="'.$keywords.'",web_pack_price ="'.$web_pack_price.'",destination_search="'.$destination_search.'",dateAdded="' . date('Y-m-d H:i:s') . '",slug="'.$slug.'",package_rating="'.$package_rating.'",hotel_facility="'.$hotel_facility.'"';
+    $namevalue = 'name="' . $name . '",startDate="' . $startDate . '",endDate="' . $endDate . '",adult="' . $adult . '",child="' . $child . '",days="' . $days . '",websiteCost="' . $websiteCost . '",websiteValidity="' . $websiteValidity . '",showwebsite="' . $showwebsite . '",destinations="' . $destinations . '",relate_key="' . $relate_key . '",aboutPackage="' . $aboutPackage . '",packageThemeId="' . $packageThemeId . '",showinPopular="' . $showinPopular . '",showinSpecial="' . $showinSpecial . '",notes="' . $notes . '",location="' . $location . '",hotel="' . $hotel . '",description="' . $description . '",destination_type="' . $destination_type . '",tour_type="' . $tour_type . '",activity_type="' . $activity_type . '",landscape_type="' . $landscape_type . '",publicly_visible="' . $publicly_visible . '", website_visible="' . $website_visible . '", mapURL="' . $mapURL . '",keywords="' . $keywords . '",web_pack_price ="' . $web_pack_price . '",destination_search="' . $destination_search . '",dateAdded="' . date('Y-m-d H:i:s') . '",slug="' . $slug . '",package_rating="' . $package_rating . '",hotel_facility="' . $hotel_facility . '"';
     $where = 'id="' . decode($editId) . '"';
     updatelisting('sys_packageBuilder', $namevalue, $where);
     $lstaddid = decode($editId);
@@ -484,15 +481,15 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
     }
   } else {
 
-    $namevalue = 'name="' . $name . '",startDate="' . $startDate . '",packageThemeId="' . $packageThemeId . '",aboutPackage="' . $aboutPackage . '",websiteValidity="' . $websiteValidity . '",showinPopular="' . $showinPopular . '",showinSpecial="' . $showinSpecial . '",endDate="' . $endDate . '",adult="' . $adult . '",websiteCost="' . $websiteCost . '",showwebsite="' . $showwebsite . '",child="' . $child . '",days="' . $days . '",queryId="' . $queryId . '",destinations="' . $destinations . '",relate_key="' . $relate_key . '",notes="' . $notes . '",location="' . $location . '",hotel="' . $hotel . '",description="' . $description . '",destination_type="' . $destination_type . '",tour_type="' . $tour_type . '",activity_type="' . $activity_type . '",landscape_type="' . $landscape_type . '",publicly_visible="' . $publicly_visible . '",website_visible="'.$website_visible.'",mapURL="'.$mapURL.'",keywords="'.$keywords.'",web_pack_price ="'.$web_pack_price.'",destination_search="'.$destination_search.'",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",inclusionExclusion="' . addslashes($inclusiondata['inclusion']) . '",terms="' . addslashes($inclusiondata['invoiceTerms']) . '",baseMarkup="0",igst="0",slug="'.$slug.'",package_rating="'.$package_rating.'",hotel_facility="'.$hotel_facility.'"';
+    $namevalue = 'name="' . $name . '",startDate="' . $startDate . '",packageThemeId="' . $packageThemeId . '",aboutPackage="' . $aboutPackage . '",websiteValidity="' . $websiteValidity . '",showinPopular="' . $showinPopular . '",showinSpecial="' . $showinSpecial . '",endDate="' . $endDate . '",adult="' . $adult . '",websiteCost="' . $websiteCost . '",showwebsite="' . $showwebsite . '",child="' . $child . '",days="' . $days . '",queryId="' . $queryId . '",destinations="' . $destinations . '",relate_key="' . $relate_key . '",notes="' . $notes . '",location="' . $location . '",hotel="' . $hotel . '",description="' . $description . '",destination_type="' . $destination_type . '",tour_type="' . $tour_type . '",activity_type="' . $activity_type . '",landscape_type="' . $landscape_type . '",publicly_visible="' . $publicly_visible . '",website_visible="' . $website_visible . '",mapURL="' . $mapURL . '",keywords="' . $keywords . '",web_pack_price ="' . $web_pack_price . '",destination_search="' . $destination_search . '",dateAdded="' . date('Y-m-d H:i:s') . '",addedBy="' . $_SESSION['userid'] . '",inclusionExclusion="' . addslashes($inclusiondata['inclusion']) . '",terms="' . addslashes($inclusiondata['invoiceTerms']) . '",baseMarkup="0",igst="0",slug="' . $slug . '",package_rating="' . $package_rating . '",hotel_facility="' . $hotel_facility . '"';
     $lstaddid = addlistinggetlastid('sys_packageBuilder', $namevalue);
 
-    $tags_id=explode(",",$tagging);
-    foreach($tags_id as $val){
-      $taggings_value = 'tags_id="' . $val . '",tagable_id="'.$lstaddid.'",taggable_type="itinerary"';
-      $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);  
+    $tags_id = explode(",", $tagging);
+    foreach ($tags_id as $val) {
+      $taggings_value = 'tags_id="' . $val . '",tagable_id="' . $lstaddid . '",taggable_type="itinerary"';
+      $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);
     }
- 
+
     if (!empty(array_filter($_FILES['files']['name']))) {
       foreach ($_FILES['files']['tmp_name'] as $key => $value) {
         $rt = mt_rand() . strtotime(date("YMDHis"));
@@ -536,7 +533,7 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
     $namevalue = 'packageId="' . $lstaddid . '",title="' . addslashes($editresult['travelInformationTitle']) . '",description="' . addslashes($editresult['packageTravelInfo']) . '",iconset="' . $editresult['travelInfoImg'] . '"';
     addlistinggetlastid('sys_PackageTips', $namevalue);
 
-    $namevalue = 'packageId="' . $lstaddid . '",title="Cancellation Policy & Airline Cancellation Policy", description="'.addslashes($cancell).'",iconset="16450947871990465531643885187.jpg"';
+    $namevalue = 'packageId="' . $lstaddid . '",title="Cancellation Policy & Airline Cancellation Policy", description="' . addslashes($cancell) . '",iconset="16450947871990465531643885187.jpg"';
     addlistinggetlastid('sys_PackageTips', $namevalue);
 
     $namevalue = 'packageId="' . $lstaddid . '",title="Things to Do", description="",iconset="16450947871990465531643885187.jpg"';
@@ -551,7 +548,7 @@ if (trim($_POST['action']) == 'addtineraries' && trim($_POST['name']) != '' && t
   <script>
     parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo encode($lstaddid); ?>&save=1');
   </script>
-<?php
+  <?php
 }
 
 
@@ -565,102 +562,98 @@ if (trim($_POST['action']) == 'addcollection' && trim($_POST['name']) != '' && t
   $location_type = $_POST['location_type'];
   $editId = addslashes($_POST['editId']);
   $current = date("Y-m-d h:i:s");
-if($editId != '')
-{
-  deleteRecord('Taggings', 'tagable_id="' . decode($editId) . '" and taggable_type="collection"');
-  $tags_id=explode(",",$tagging);
-  foreach($tags_id as $val){
-    $taggings_value = 'tags_id="' . $val . '",tagable_id="'.decode($editId).'",taggable_type="collection"';
-    $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);  
-  }
- 
-  $namevalue = "name='".$name."',location='".$location."',description='".$description."',destination_type='". $destination_type . "',location_type='" . $location_type ."',updated_at='".$current."'";
-  $where = 'id="' . decode($editId) . '"';
-  updatelisting('Collection', $namevalue, $where);
-  if ($itenaries) {
-    deleteRecord('Collection_itineraries', 'collection_id="' . decode($editId) . '"');
-    foreach ($itenaries as $key => $value) {
-      $itenaries_value = 'collection_id="' .  decode($editId) . '",itinerary_id="' . $value . '"';
-      $lst_iteaddid = addlistinggetlastid('Collection_itineraries', $itenaries_value);
+  if ($editId != '') {
+    deleteRecord('Taggings', 'tagable_id="' . decode($editId) . '" and taggable_type="collection"');
+    $tags_id = explode(",", $tagging);
+    foreach ($tags_id as $val) {
+      $taggings_value = 'tags_id="' . $val . '",tagable_id="' . decode($editId) . '",taggable_type="collection"';
+      $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);
     }
-  }
-  if (!empty(array_filter($_FILES['files']['name']))) {
-    foreach ($_FILES['files']['tmp_name'] as $key => $value) {
-      $rt = mt_rand() . strtotime(date("YMDHis"));
-      $CollectionLogoFileName = basename($_FILES['files']['name'][$key]);
-      $CollectionLogoFileExtension = pathinfo($CollectionLogoFileName, PATHINFO_EXTENSION);
-      $collectionPhoto = time() . $rt . '.' . $CollectionLogoFileExtension;
-      if (!is_dir('collectionphotos')) {
-        mkdir('collectionphotos');
+
+    $namevalue = "name='" . $name . "',location='" . $location . "',description='" . $description . "',destination_type='" . $destination_type . "',location_type='" . $location_type . "',updated_at='" . $current . "'";
+    $where = 'id="' . decode($editId) . '"';
+    updatelisting('Collection', $namevalue, $where);
+    if ($itenaries) {
+      deleteRecord('Collection_itineraries', 'collection_id="' . decode($editId) . '"');
+      foreach ($itenaries as $key => $value) {
+        $itenaries_value = 'collection_id="' .  decode($editId) . '",itinerary_id="' . $value . '"';
+        $lst_iteaddid = addlistinggetlastid('Collection_itineraries', $itenaries_value);
       }
-      move_uploaded_file($_FILES["files"]["tmp_name"][$key], "collectionphotos/{$collectionPhoto}");
-      $collection_image_value = 'image_path="' . $collectionPhoto  . '",collection_id ="' . decode($editId) . '"';
-      $lst_imgaddid = addlistinggetlastid('Collection_image', $collection_image_value);
     }
-  }
-  ?>
-  <script>
-    parent.redirectpage('display.html?ga=collection&view=1&id=<?php echo $editId; ?>&save=1');
-  </script>
-<?php
-
-}
-else{
-
-  $collection_value = 'description="' . $description . '",location="' . $location . '",name="' . $name . '",destination_type="' . $destination_type . '",location_type="' . $location_type . '"';
-  $lstaddid = addlistinggetlastid('Collection', $collection_value);
-  if ($itenaries) {
-    foreach ($itenaries as $key => $value) {
-      $itenaries_value = 'collection_id="' .  $lstaddid . '",itinerary_id="' . $value . '"';
-      $lst_iteaddid = addlistinggetlastid('Collection_itineraries', $itenaries_value);
-    }
-  }
-  $tags_id=explode(",",$tagging);
-  foreach($tags_id as $val){
-    $taggings_value = 'tags_id="' . $val . '",tagable_id="'.$lstaddid.'",taggable_type="collection"';
-    $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);  
-  }
- 
-  if (!empty(array_filter($_FILES['files']['name']))) {
-    foreach ($_FILES['files']['tmp_name'] as $key => $value) {
-      $rt = mt_rand() . strtotime(date("YMDHis"));
-      $CollectionLogoFileName = basename($_FILES['files']['name'][$key]);
-      $CollectionLogoFileExtension = pathinfo($CollectionLogoFileName, PATHINFO_EXTENSION);
-      $collectionPhoto = time() . $rt . '.' . $CollectionLogoFileExtension;
-      if (!is_dir('collectionphotos')) {
-        mkdir('collectionphotos');
+    if (!empty(array_filter($_FILES['files']['name']))) {
+      foreach ($_FILES['files']['tmp_name'] as $key => $value) {
+        $rt = mt_rand() . strtotime(date("YMDHis"));
+        $CollectionLogoFileName = basename($_FILES['files']['name'][$key]);
+        $CollectionLogoFileExtension = pathinfo($CollectionLogoFileName, PATHINFO_EXTENSION);
+        $collectionPhoto = time() . $rt . '.' . $CollectionLogoFileExtension;
+        if (!is_dir('collectionphotos')) {
+          mkdir('collectionphotos');
+        }
+        move_uploaded_file($_FILES["files"]["tmp_name"][$key], "collectionphotos/{$collectionPhoto}");
+        $collection_image_value = 'image_path="' . $collectionPhoto  . '",collection_id ="' . decode($editId) . '"';
+        $lst_imgaddid = addlistinggetlastid('Collection_image', $collection_image_value);
       }
-      move_uploaded_file($_FILES["files"]["tmp_name"][$key], "collectionphotos/{$collectionPhoto}");
-      $collection_image_value = 'image_path="' . $collectionPhoto  . '",collection_id ="' . $lstaddid . '"';
-      $lst_imgaddid = addlistinggetlastid('Collection_image', $collection_image_value);
     }
-  }
   ?>
-  <script>
-    parent.redirectpage('display.html?ga=collection&view=1&id=<?php echo encode($lstaddid); ?>&save=1');
-  </script>
-<?php
+    <script>
+      parent.redirectpage('display.html?ga=collection&view=1&id=<?php echo $editId; ?>&save=1');
+    </script>
+  <?php
 
-}
+  } else {
 
+    $collection_value = 'description="' . $description . '",location="' . $location . '",name="' . $name . '",destination_type="' . $destination_type . '",location_type="' . $location_type . '"';
+    $lstaddid = addlistinggetlastid('Collection', $collection_value);
+    if ($itenaries) {
+      foreach ($itenaries as $key => $value) {
+        $itenaries_value = 'collection_id="' .  $lstaddid . '",itinerary_id="' . $value . '"';
+        $lst_iteaddid = addlistinggetlastid('Collection_itineraries', $itenaries_value);
+      }
+    }
+    $tags_id = explode(",", $tagging);
+    foreach ($tags_id as $val) {
+      $taggings_value = 'tags_id="' . $val . '",tagable_id="' . $lstaddid . '",taggable_type="collection"';
+      $tags_lstaddid = addlistinggetlastid('Taggings', $taggings_value);
+    }
+
+    if (!empty(array_filter($_FILES['files']['name']))) {
+      foreach ($_FILES['files']['tmp_name'] as $key => $value) {
+        $rt = mt_rand() . strtotime(date("YMDHis"));
+        $CollectionLogoFileName = basename($_FILES['files']['name'][$key]);
+        $CollectionLogoFileExtension = pathinfo($CollectionLogoFileName, PATHINFO_EXTENSION);
+        $collectionPhoto = time() . $rt . '.' . $CollectionLogoFileExtension;
+        if (!is_dir('collectionphotos')) {
+          mkdir('collectionphotos');
+        }
+        move_uploaded_file($_FILES["files"]["tmp_name"][$key], "collectionphotos/{$collectionPhoto}");
+        $collection_image_value = 'image_path="' . $collectionPhoto  . '",collection_id ="' . $lstaddid . '"';
+        $lst_imgaddid = addlistinggetlastid('Collection_image', $collection_image_value);
+      }
+    }
+  ?>
+    <script>
+      parent.redirectpage('display.html?ga=collection&view=1&id=<?php echo encode($lstaddid); ?>&save=1');
+    </script>
+  <?php
+
+  }
 }
 
 if (trim($_POST['action']) == 'deletecollection') {
-  deleteFiles('image_path','Collection_image',"collection_id=".$_POST['id']);
-  deleteRecord('Collection',"id=".$_POST['id']);
+  deleteFiles('image_path', 'Collection_image', "collection_id=" . $_POST['id']);
+  deleteRecord('Collection', "id=" . $_POST['id']);
   deleteRecord('Taggings', 'tagable_id="' . $_POST['id'] . '" and taggable_type="collection"');
-
 }
 
 if (trim($_POST['action']) == 'delete_single_photo') {
-  deleteFiles('image_path','Collection_image',"id=".$_POST['id']);
-  deleteRecord('Collection_image',"id=".$_POST['id']);
+  deleteFiles('image_path', 'Collection_image', "id=" . $_POST['id']);
+  deleteRecord('Collection_image', "id=" . $_POST['id']);
 }
 
 
 if (trim($_POST['action']) == 'delete_single_itinerary_photo') {
-  deleteitineraryFiles('image_path','sys_packageBuilder_image',"id=".$_POST['id']);
-  deleteRecord('sys_packageBuilder_image',"id=".$_POST['id']);
+  deleteitineraryFiles('image_path', 'sys_packageBuilder_image', "id=" . $_POST['id']);
+  deleteRecord('sys_packageBuilder_image', "id=" . $_POST['id']);
 }
 
 if (trim($_POST['action']) == 'addtaggings' && trim($_POST['name']) != '' && trim($_POST['type']) != '') {
@@ -669,33 +662,31 @@ if (trim($_POST['action']) == 'addtaggings' && trim($_POST['name']) != '' && tri
   $type = $_POST['type'];
   $current = date("Y-m-d h:i:s");
   $editId = addslashes($_POST['editId']);
-  
-  $sql = "select count(*) as count from  Tag_type where name='".$type."'";
+
+  $sql = "select count(*) as count from  Tag_type where name='" . $type . "'";
   $rs = mysqli_query(db(), $sql) or die(mysqli_error());
   $typeexistornot = mysqli_fetch_array($rs, MYSQLI_BOTH);
-  if($typeexistornot[0]==0){
+  if ($typeexistornot[0] == 0) {
     $taggings_value = 'name="' . $type . '"';
-    addlistinggetlastid('Tag_type', $taggings_value);  
+    addlistinggetlastid('Tag_type', $taggings_value);
   }
 
-  if($editId != '')
-  {
-    $namevalue = "name='".$name."',type='".$type."',updated_at='".$current."'";
+  if ($editId != '') {
+    $namevalue = "name='" . $name . "',type='" . $type . "',updated_at='" . $current . "'";
     $where = 'id="' . decode($editId) . '"';
     updatelisting('Tags', $namevalue, $where);
 
-    ?>
+  ?>
     <script>
       parent.redirectpage('display.html?ga=taggings&save=1');
     </script>
   <?php
 
-  }
-  else{
+  } else {
     $taggings_value = 'name="' . $name . '",type="' . $type . '"';
     $lstaddid = addlistinggetlastid('Tags', $taggings_value);
 
-    ?>
+  ?>
     <script>
       parent.redirectpage('display.html?ga=taggings&save=1');
     </script>
@@ -706,7 +697,7 @@ if (trim($_POST['action']) == 'addtaggings' && trim($_POST['name']) != '' && tri
 
 
 if (trim($_POST['action']) == 'deletetaggings') {
-  deleteRecord('Tags',"id=".$_POST['id']);
+  deleteRecord('Tags', "id=" . $_POST['id']);
 }
 
 
@@ -734,7 +725,7 @@ if (trim($_POST['action']) == 'confirmitineararies' && trim($_POST['editId']) !=
 
   updatelisting('queryMaster', 'statusid=9', 'id="' . decode($_POST['queryid']) . '"');
 
-?>
+  ?>
   <script>
     parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_POST['queryid']; ?>&c=2&save=1');
   </script>
@@ -1197,98 +1188,94 @@ if (trim($_POST['action']) == 'addMeal' && trim($_POST['name']) != '' && trim($_
 <?php
 }
 
-if(trim($_POST['action'])=='editpricing' && trim($_POST['adultCost'])!='' && trim($_POST['editId'])!='' && trim($_POST['pid'])!=''){
-  $adultCost=addslashes(trim($_POST['adultCost']));  
-  
-  
-  
-  $childCost=addslashes(trim($_POST['childCost']));   
-  
-  
-  
-  $vehicle=addslashes(trim($_POST['vehicle']));
-  
-  
-  
-  $markupPercent=isset($_POST['markupPercent'])? addslashes(trim($_POST['markupPercent'])):0;  
-  $markupPercent = ($markupPercent == '')? 0: $markupPercent;
+if (trim($_POST['action']) == 'editpricing' && trim($_POST['adultCost']) != '' && trim($_POST['editId']) != '' && trim($_POST['pid']) != '') {
+  $adultCost = addslashes(trim($_POST['adultCost']));
 
-  
-  
-  
-  $editId=addslashes($_POST['editId']);   
-  
-  
-  
-        
-  
-  
-  
-      
-  
-  
-  
-  $rs2=GetPageRecord('*','currencyExchangeMaster','id=2 order by id asc');
-  
-  
-  
-  $restsup=mysqli_fetch_array($rs2); 
-  
-  
-  
-  
-  
-  
-  
-   
-  
-  
-  
-  $namevalue ='adultCost="'.$adultCost.'",childCost="'.$childCost.'",vehicle="'.$vehicle.'",markupPercent="'.$markupPercent.'",markupValue="'.$markupValue.'",currencyId="2",currencyValue="'.($restsup['rate']).'"';  
+
+
+  $childCost = addslashes(trim($_POST['childCost']));
+
+
+
+  $vehicle = addslashes(trim($_POST['vehicle']));
+
+
+
+  $markupPercent = isset($_POST['markupPercent']) ? addslashes(trim($_POST['markupPercent'])) : 0;
+  $markupPercent = ($markupPercent == '') ? 0 : $markupPercent;
+
+
+
+
+  $editId = addslashes($_POST['editId']);
+
+
+
+
+
+
+
+
+
+
+
+  $rs2 = GetPageRecord('*', 'currencyExchangeMaster', 'id=2 order by id asc');
+
+
+
+  $restsup = mysqli_fetch_array($rs2);
+
+
+
+
+
+
+
+
+
+
+
+  $namevalue = 'adultCost="' . $adultCost . '",childCost="' . $childCost . '",vehicle="' . $vehicle . '",markupPercent="' . $markupPercent . '",markupValue="' . $markupValue . '",currencyId="2",currencyValue="' . ($restsup['rate']) . '"';
 
   //echo $namevalue;
-  
-  
-  
-  $where='id="'.decode($editId).'"';    
-  
-  
-  
-  updatelisting('sys_packageBuilderEvent',$namevalue,$where);  
-  
-  
-  
-  
-  
-  
-  
-   
-  
-  
-  
-  
-  
-  
-  
-  ?> 
-  
-  
-  
-  <script> 
-  
-  parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
-  
-  
-  
-  </script> 
-  
-  
-  
-  <?php 
-  
-  
-  
-  }
+
+
+
+  $where = 'id="' . decode($editId) . '"';
+
+
+
+  updatelisting('sys_packageBuilderEvent', $namevalue, $where);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+?>
+
+
+
+  <script>
+    parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
+  </script>
+
+
+
+<?php
+
+
+
+}
 
 
 
@@ -1304,41 +1291,41 @@ if(trim($_POST['action'])=='editpricing' && trim($_POST['adultCost'])!='' && tri
 
 
 if (trim($_POST['action']) == 'editpricing' && trim($_POST['overall_pricing']) != '' && trim($_POST['editId']) != '' && trim($_POST['pid']) != '') {
-        $pid = $_POST['pid'];
-        $overall_pricing = addslashes($_POST['overall_pricing']);
-        $markupPercent = addslashes(trim($_POST['markupTotal']));
-        $markupTotal = $markupPercent;
-        $international = addslashes($_POST['international']);
-        $editId = addslashes($_POST['editId']);
+  $pid = $_POST['pid'];
+  $overall_pricing = addslashes($_POST['overall_pricing']);
+  $markupPercent = addslashes(trim($_POST['markupTotal']));
+  $markupTotal = $markupPercent;
+  $international = addslashes($_POST['international']);
+  $editId = addslashes($_POST['editId']);
 
-        $rs2 = GetPageRecord('*', 'currencyExchangeMaster', 'id=2 order by id asc');
-        $restsup = mysqli_fetch_array($rs2);
+  $rs2 = GetPageRecord('*', 'currencyExchangeMaster', 'id=2 order by id asc');
+  $restsup = mysqli_fetch_array($rs2);
 
-        $rs3 = GetPageRecord('*', 'sys_packageBuilderEvent', 'id="' . decode($editId) . '"');
-        $rest = mysqli_fetch_array($rs3);
+  $rs3 = GetPageRecord('*', 'sys_packageBuilderEvent', 'id="' . decode($editId) . '"');
+  $rest = mysqli_fetch_array($rs3);
 
-        if($rest['supplierAmount']){
-            $supplierAmount=$overall_pricing;
-        } else {
-            $supplierAmount=0;
-        }
+  if ($rest['supplierAmount']) {
+    $supplierAmount = $overall_pricing;
+  } else {
+    $supplierAmount = 0;
+  }
 
-        $namevalue = 'adultCost="' . $adultCost . '",childCost="' . $childCost . '",vehicle="' . $vehicle . '",markupPercent="' . $markupPercent . '",markupValue="' . $markupValue . '",currencyId="2",currencyValue="' . ($restsup['rate']) . '",overall_pricing="'.$overall_pricing.'" ,markupTotal="'.$markupTotal.'", international_trip="'.$international.'",supplierAmount='.$supplierAmount;
-        $where = 'id="' . decode($editId) . '"';
-        updatelisting('sys_packageBuilderEvent', $namevalue, $where);
+  $namevalue = 'adultCost="' . $adultCost . '",childCost="' . $childCost . '",vehicle="' . $vehicle . '",markupPercent="' . $markupPercent . '",markupValue="' . $markupValue . '",currencyId="2",currencyValue="' . ($restsup['rate']) . '",overall_pricing="' . $overall_pricing . '" ,markupTotal="' . $markupTotal . '", international_trip="' . $international . '",supplierAmount=' . $supplierAmount;
+  $where = 'id="' . decode($editId) . '"';
+  updatelisting('sys_packageBuilderEvent', $namevalue, $where);
 
-        $dataForMarkup = GetTotalOfColumn('markupTotal', 'sys_packageBuilderEvent','packageId="' . decode($pid) . '" and sectionType!="Leisure" and markupTotal>0');
-        $total_of_markup = $dataForMarkup[0];
+  $dataForMarkup = GetTotalOfColumn('markupTotal', 'sys_packageBuilderEvent', 'packageId="' . decode($pid) . '" and sectionType!="Leisure" and markupTotal>0');
+  $total_of_markup = $dataForMarkup[0];
 
-        $namevalue = 'extraMarkup="' . $total_of_markup . '"';
-        $where = 'id="' . decode($pid) . '" ';
-        //updatelisting('sys_packageBuilder', $namevalue, $where);
+  $namevalue = 'extraMarkup="' . $total_of_markup . '"';
+  $where = 'id="' . decode($pid) . '" ';
+  //updatelisting('sys_packageBuilder', $namevalue, $where);
 
-        ?>
-    <script>
-        parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
+  </script>
+<?php
 }
 
 
@@ -1347,48 +1334,48 @@ if (trim($_POST['action']) == 'editpricing' && trim($_POST['overall_pricing']) !
 
 if (trim($_POST['action']) == 'editpricingAccommodation' && trim($_POST['editId']) != '' && trim($_POST['pid']) != '') {
 
-    $pid = $_POST['pid'];
-    $singleRoomCost = addslashes(trim($_POST['singleRoomCost']));
-    $doubleRoomCost = addslashes(trim($_POST['doubleRoomCost']));
-    $tripleRoomCost = addslashes(trim($_POST['tripleRoomCost']));
-    $quadRoomCost = addslashes(trim($_POST['quadRoomCost']));
-    $cwbRoomCost = addslashes(trim($_POST['cwbRoomCost']));
-    $cnbRoomCost = addslashes(trim($_POST['cnbRoomCost']));
-    $markupPercent = addslashes(trim($_POST['markupPercent']));
-    $overall_pricing = addslashes(trim($_POST['overall_pricing']));
-    $markupPercent = addslashes(trim($_POST['markupTotal']));
-    $markupTotal = $markupPercent;
-    $international = addslashes($_POST['international']);
-    $editId = addslashes($_POST['editId']);
+  $pid = $_POST['pid'];
+  $singleRoomCost = addslashes(trim($_POST['singleRoomCost']));
+  $doubleRoomCost = addslashes(trim($_POST['doubleRoomCost']));
+  $tripleRoomCost = addslashes(trim($_POST['tripleRoomCost']));
+  $quadRoomCost = addslashes(trim($_POST['quadRoomCost']));
+  $cwbRoomCost = addslashes(trim($_POST['cwbRoomCost']));
+  $cnbRoomCost = addslashes(trim($_POST['cnbRoomCost']));
+  $markupPercent = addslashes(trim($_POST['markupPercent']));
+  $overall_pricing = addslashes(trim($_POST['overall_pricing']));
+  $markupPercent = addslashes(trim($_POST['markupTotal']));
+  $markupTotal = $markupPercent;
+  $international = addslashes($_POST['international']);
+  $editId = addslashes($_POST['editId']);
 
-    $rs2 = GetPageRecord('*', 'currencyExchangeMaster', 'id=2 order by id asc');
-    $restsup = mysqli_fetch_array($rs2);
+  $rs2 = GetPageRecord('*', 'currencyExchangeMaster', 'id=2 order by id asc');
+  $restsup = mysqli_fetch_array($rs2);
 
-    $rs3 = GetPageRecord('*', 'sys_packageBuilderEvent', 'id="' . decode($editId) . '"');
-    $rest = mysqli_fetch_array($rs3);
+  $rs3 = GetPageRecord('*', 'sys_packageBuilderEvent', 'id="' . decode($editId) . '"');
+  $rest = mysqli_fetch_array($rs3);
 
-    if($rest['supplierAmount']){
-        $supplierAmount=$overall_pricing;
-    } else {
-        $supplierAmount=0;
-    }
+  if ($rest['supplierAmount']) {
+    $supplierAmount = $overall_pricing;
+  } else {
+    $supplierAmount = 0;
+  }
 
-    $namevalue = 'singleRoomCost="' . $singleRoomCost . '",doubleRoomCost="' . $doubleRoomCost . '",tripleRoomCost="' . $tripleRoomCost . '",quadRoomCost="' . $quadRoomCost . '",cwbRoomCost="' . $cwbRoomCost . '",cnbRoomCost="' . $cnbRoomCost . '",markupPercent="' . $markupPercent . '",markupValue="' . $markupValue . '",currencyId="2",currencyValue="' . ($restsup['rate']) . '",overall_pricing="'.$overall_pricing.'",markupTotal="'.$markupTotal.'",international_trip="'.$international.'",supplierAmount='.$supplierAmount ;
-    $where = 'id="' . decode($editId) . '"';
-    updatelisting('sys_packageBuilderEvent', $namevalue, $where);
+  $namevalue = 'singleRoomCost="' . $singleRoomCost . '",doubleRoomCost="' . $doubleRoomCost . '",tripleRoomCost="' . $tripleRoomCost . '",quadRoomCost="' . $quadRoomCost . '",cwbRoomCost="' . $cwbRoomCost . '",cnbRoomCost="' . $cnbRoomCost . '",markupPercent="' . $markupPercent . '",markupValue="' . $markupValue . '",currencyId="2",currencyValue="' . ($restsup['rate']) . '",overall_pricing="' . $overall_pricing . '",markupTotal="' . $markupTotal . '",international_trip="' . $international . '",supplierAmount=' . $supplierAmount;
+  $where = 'id="' . decode($editId) . '"';
+  updatelisting('sys_packageBuilderEvent', $namevalue, $where);
 
-    $dataForMarkup = GetTotalOfColumn('markupTotal', 'sys_packageBuilderEvent','packageId="' . decode($pid) . '" and sectionType!="Leisure" and markupTotal>0');
-    $total_of_markup = $dataForMarkup[0];
+  $dataForMarkup = GetTotalOfColumn('markupTotal', 'sys_packageBuilderEvent', 'packageId="' . decode($pid) . '" and sectionType!="Leisure" and markupTotal>0');
+  $total_of_markup = $dataForMarkup[0];
 
-    $namevalue = 'extraMarkup="' . $total_of_markup . '"';
-    $where = 'id="' . decode($pid) . '" ';
-    //updatelisting('sys_packageBuilder', $namevalue, $where);
+  $namevalue = 'extraMarkup="' . $total_of_markup . '"';
+  $where = 'id="' . decode($pid) . '" ';
+  //updatelisting('sys_packageBuilder', $namevalue, $where);
 
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('display.html?ga=itineraries&view=1&id=<?php echo $_POST['pid']; ?>&save=1&b=2');
+  </script>
+<?php
 }
 
 
@@ -1401,7 +1388,7 @@ if (trim($_POST['action']) == 'editpricingAccommodation' && trim($_POST['editId'
 
 if (trim($_REQUEST['action']) == 'updatebillingtype' && trim($_REQUEST['pid']) != '') {
 
-  $namevalue = 'billingType="' . $_REQUEST['billingType'] .'"';
+  $namevalue = 'billingType="' . $_REQUEST['billingType'] . '"';
   $where = 'id="' . decode($_REQUEST['pid']) . '"';
   updatelisting('sys_packageBuilder', $namevalue, $where);
 
@@ -1469,6 +1456,7 @@ if (trim($_REQUEST['action']) == 'uploadphototmedia') {
 if (trim($_REQUEST['action']) == 'setpackagecoverphoto' && trim($_REQUEST['imagename']) != ''  && trim($_REQUEST['pid']) != '') {
 
   //print_r($_REQUEST['pid']); exit;
+
   $coverPhoto = $_REQUEST['imagename'];
 
   $timename = time();
@@ -1476,6 +1464,8 @@ if (trim($_REQUEST['action']) == 'setpackagecoverphoto' && trim($_REQUEST['image
   if (strpos($_REQUEST['imagename'], 'https://') !== false) {
 
     $content = file_get_contents($_REQUEST['imagename']);
+    print_r($content);
+    exit;
     file_put_contents('package_image/' . $timename . '.jpg', $content);
 
     $coverPhoto = $timename . '.jpg';
@@ -1524,42 +1514,43 @@ if (trim($_POST['action']) == 'editDayDetails2') {
 
 if (trim($_POST['action']) == 'addEditFaq') {
 
-    if(isset($_POST['fid']) && !empty($_POST['fid']) && (intval($_POST['fid']) > 0)){
-        $namevalue = 'title="' . mysqli_real_escape_string(db(),$_POST['question']) . '",description="' .
-        mysqli_real_escape_string(db(),$_POST['answer']) . '"';
-        $where = 'packageId="' . decode($_POST['pid']) . '" and id="' . ($_POST['fid']) . '"';
-        updatelisting('sys_packageFAQs', $namevalue, $where);
-    }
-    else{
-        $namevalue = 'packageId="' . decode($_POST['pid']) . '",title="' . mysqli_real_escape_string(db(),
-                $_POST['question']) . '",description="' . mysqli_real_escape_string(db(), $_POST['answer']) . '"';
-        addlistinggetlastid('sys_packageFAQs', $namevalue);
-    }
-    ?>
-    <script>
-        parent.load_build_day_details('120000', '<?php echo date('Y-m-d'); ?>');
-        parent.$('.modal').modal('hide');
-    </script>
-    <?php
+  if (isset($_POST['fid']) && !empty($_POST['fid']) && (intval($_POST['fid']) > 0)) {
+    $namevalue = 'title="' . mysqli_real_escape_string(db(), $_POST['question']) . '",description="' .
+      mysqli_real_escape_string(db(), $_POST['answer']) . '"';
+    $where = 'packageId="' . decode($_POST['pid']) . '" and id="' . ($_POST['fid']) . '"';
+    updatelisting('sys_packageFAQs', $namevalue, $where);
+  } else {
+    $namevalue = 'packageId="' . decode($_POST['pid']) . '",title="' . mysqli_real_escape_string(
+      db(),
+      $_POST['question']
+    ) . '",description="' . mysqli_real_escape_string(db(), $_POST['answer']) . '"';
+    addlistinggetlastid('sys_packageFAQs', $namevalue);
+  }
+?>
+  <script>
+    parent.load_build_day_details('120000', '<?php echo date('Y-m-d'); ?>');
+    parent.$('.modal').modal('hide');
+  </script>
+<?php
 }
 
 
 if (trim($_POST['action']) == 'updateImgAltText') {
-    if((intval($_POST['altIndx']) > 0) && (intval($_POST['itnryId']) > 0) && !empty($_POST['altText'])){
-        $altIndx = $_POST['altIndx'];
-        $namevalue = 'imgAlt'.$altIndx.' = "' . mysqli_real_escape_string(db(),$_POST['altText']) . '"';
-        $where = 'id="' . $_POST['itnryId'] . '"';
-        echo updatelisting('sys_packageBuilder', $namevalue, $where);
-    }
+  if ((intval($_POST['altIndx']) > 0) && (intval($_POST['itnryId']) > 0) && !empty($_POST['altText'])) {
+    $altIndx = $_POST['altIndx'];
+    $namevalue = 'imgAlt' . $altIndx . ' = "' . mysqli_real_escape_string(db(), $_POST['altText']) . '"';
+    $where = 'id="' . $_POST['itnryId'] . '"';
+    echo updatelisting('sys_packageBuilder', $namevalue, $where);
+  }
 }
 
 
 
 if (trim($_POST['action']) == 'deleteFaq') {
-    if (isset($_POST['faqId']) && !empty($_POST['faqId']) && (intval($_POST['faqId']) > 0)) {
-        deleteRecord('sys_packageFAQs', 'id="' . $_POST['faqId'] . '"');
-        echo '1';
-    }
+  if (isset($_POST['faqId']) && !empty($_POST['faqId']) && (intval($_POST['faqId']) > 0)) {
+    deleteRecord('sys_packageFAQs', 'id="' . $_POST['faqId'] . '"');
+    echo '1';
+  }
 }
 
 
@@ -1648,7 +1639,7 @@ if (trim($_REQUEST['action']) == 'edittermsandconditionsDetails'  && trim($_REQU
 
 if (trim($_REQUEST['action']) == 'packageextramarkup'  && trim($_REQUEST['pid']) != '') {
 
-//  $namevalue = 'extraMarkup="' . $_REQUEST['extraMarkup'] . '",baseMarkup="' . $_REQUEST['baseMarkup'] . '"';
+  //  $namevalue = 'extraMarkup="' . $_REQUEST['extraMarkup'] . '",baseMarkup="' . $_REQUEST['baseMarkup'] . '"';
   $namevalue = 'extraMarkup="' . $_REQUEST['extraMarkup'] . '"';
 
   $where = 'id="' . decode($_REQUEST['pid']) . '" ';
@@ -2076,134 +2067,138 @@ if (trim($_REQUEST['action']) == 'deltetips' && trim($_REQUEST['did']) != '' && 
 //if($_POST['action']=='addQuery' &&  $_POST['startDate']!='' && $_POST['endDate']!=''  && $_POST['name']!='' && $_POST['email']!='' && $_POST['mobile']!='' && $_POST['country']!='' && $_POST['state']!='' && $_POST['city']!='' && $_POST['fromCity']!='' && $_POST['destinationId']!=''){ 
 if ($_POST['action'] == 'addQuery') {
 
-    include "config/mail.php";
+  //     ini_set('display_errors', '1');
+  // ini_set('display_startup_errors', '1');
+  // error_reporting(E_ALL);
 
-    $startDate = date('Y-m-d', strtotime($_POST['startDate']));
+  include "config/mail.php";
 
-    $endDate = date('Y-m-d', strtotime($_POST['endDate']));
+  $startDate = date('Y-m-d', strtotime($_POST['startDate']));
 
-    $submitName = addslashes($_POST['submitName']);
+  $endDate = date('Y-m-d', strtotime($_POST['endDate']));
 
-    $name = addslashes($_POST['name']);
+  $submitName = addslashes($_POST['submitName']);
 
-    $mobile = addslashes($_POST['mobile']);
+  $name = addslashes($_POST['name']);
 
-    $webqueryid = addslashes($_POST['webqueryid']);
+  $mobile = addslashes($_POST['mobile']);
 
-    $priorityStatus = addslashes($_POST['priorityStatus']);
+  $webqueryid = addslashes($_POST['webqueryid']);
 
-    $country = addslashes($_POST['country']);
+  $priorityStatus = addslashes($_POST['priorityStatus']);
 
-    $email = addslashes($_POST['email']);
+  $country = addslashes($_POST['country']);
 
-    $state = addslashes($_POST['state']);
+  $email = addslashes($_POST['email']);
 
-    $travelMonth = addslashes($_POST['travelMonth']);
+  $state = addslashes($_POST['state']);
 
-    $city = addslashes($_POST['city']);
+  $travelMonth = addslashes($_POST['travelMonth']);
 
-    $clientId = decode($_POST['clientId']);
+  $city = addslashes($_POST['city']);
 
-    $clientId = decode($_POST['clientId']);
+  $clientId = decode($_POST['clientId']);
 
-    $fromCity = addslashes($_POST['fromCity']);
+  $clientId = decode($_POST['clientId']);
 
-    //add email signature
+  $fromCity = addslashes($_POST['fromCity']);
 
-    $kk = GetPageRecord('*', 'sys_userMaster', 'id="' . $_SESSION['userid'] . '"');
+  //add email signature
 
-    $userDetail = mysqli_fetch_array($kk);
+  $kk = GetPageRecord('*', 'sys_userMaster', 'id="' . $_SESSION['userid'] . '"');
 
-    $emailsignature = $userDetail['emailsignature'];
+  $userDetail = mysqli_fetch_array($kk);
 
-    //end email sign.
+  $emailsignature = $userDetail['emailsignature'];
 
-    if (isset($_POST['destinationId'])) {
+  //end email sign.
 
-        foreach ($_POST['destinationId'] as $k4 => $v4) {
+  if (isset($_POST['destinationId'])) {
 
-            $destinationId .= $_POST['destinationId'][$k4] . ',';
-        }
+    foreach ($_POST['destinationId'] as $k4 => $v4) {
+
+      $destinationId .= $_POST['destinationId'][$k4] . ',';
     }
+  }
 
-    $string = '';
+  $string = '';
 
-    $string = preg_replace('/\.$/', '', $destinationId);
+  $string = preg_replace('/\.$/', '', $destinationId);
 
-    $array = explode(',', $string);
+  $array = explode(',', $string);
 
-    foreach ($array as $value) {
+  foreach ($array as $value) {
 
-        $rs1 = GetPageRecord('name', 'cityMaster', ' id="' . $value . '"');
-        $editresult = mysqli_fetch_array($rs1);
+    $rs1 = GetPageRecord('name', 'cityMaster', ' id="' . $value . '"');
+    $editresult = mysqli_fetch_array($rs1);
 
-        $destinationIdName .= $editresult['name'] . ', ';
-    }
+    $destinationIdName .= $editresult['name'] . ', ';
+  }
 
-    $randPass = rand(999999, 100000);
+  $randPass = rand(999999, 100000);
 
-    $serviceId = addslashes($_POST['serviceId']);
+  $serviceId = addslashes($_POST['serviceId']);
 
-    $adult = addslashes(strip_tags($_POST['adult']));
+  $adult = addslashes(strip_tags($_POST['adult']));
 
-    $child = addslashes(strip_tags($_POST['child']));
+  $child = addslashes(strip_tags($_POST['child']));
 
-    $infant = addslashes(strip_tags($_POST['infant']));
+  $infant = addslashes(strip_tags($_POST['infant']));
 
-    $assignTo = addslashes(strip_tags($_POST['assignTo']));
+  $assignTo = addslashes(strip_tags($_POST['assignTo']));
 
-    $addedBy = addslashes(strip_tags($_POST['addedBy']));
+  $addedBy = addslashes(strip_tags($_POST['addedBy']));
 
-    $leadSource = addslashes(strip_tags($_POST['leadSource']));
+  $leadSource = addslashes(strip_tags($_POST['leadSource']));
 
-    $title = addslashes(strip_tags($_POST['title']));
+  $title = addslashes(strip_tags($_POST['title']));
 
-    $details = addslashes(strip_tags($_POST['details']));
+  $details = addslashes(strip_tags($_POST['details']));
 
-    $start = strtotime($startDate);
+  $start = strtotime($startDate);
 
-    $end = strtotime($endDate);
+  $end = strtotime($endDate);
 
-    $day = ceil(abs($end - $start) / 86400);
+  $day = ceil(abs($end - $start) / 86400);
 
-    if ($day == 1) {
-        $night = 1;
+  if ($day == 1) {
+    $night = 1;
+  } else {
+    $night = $day - 1;
+  }
+
+  $dateAdded = date('Y-m-d H:i:s');
+
+  if ($clientId == '' || $clientId == '0') {
+
+    $bb = GetPageRecord('*', 'userMaster', 'email="' . $email . '" and userType=4');
+
+    $clientidcheck = mysqli_fetch_array($bb);
+
+    if ($clientidcheck['email'] == '') {
+      $namevalue4 = 'userType="4",submitName="' . $submitName . '",firstName="' . $name . '",mobile="' . $mobile . '",password="' . md5($randPass) . '",status=1,email="' . $email . '",country="' . $country . '",state="' . $state . '",city="' . $city . '",addedBy="' . $addedBy . '",dateAdded="' . time() . '"';
+      $clientId = addlistinggetlastid('userMaster', $namevalue4);
     } else {
-        $night = $day - 1;
+      $clientId = $clientidcheck['id'];
     }
+  }
 
-    $dateAdded = date('Y-m-d H:i:s');
+  if (trim($_POST['startDate']) == '' or trim($_POST['endDate']) == '') {
+    $night = 0;
+    $day = 0;
+  }
 
-    if ($clientId == '' || $clientId == '0') {
+  if ($_REQUEST['editid'] == '') {
 
-        $bb = GetPageRecord('*', 'userMaster', 'email="' . $email . '" and userType=4');
+    $rs = GetPageRecord($select, 'sys_userMaster', 'id=1 ');
 
-        $clientidcheck = mysqli_fetch_array($bb);
+    $invoicedataa = mysqli_fetch_array($rs);
 
-        if ($clientidcheck['email'] == '') {
-            $namevalue4 = 'userType="4",submitName="' . $submitName . '",firstName="' . $name . '",mobile="' . $mobile . '",password="' . md5($randPass) . '",status=1,email="' . $email . '",country="' . $country . '",state="' . $state . '",city="' . $city . '",addedBy="' . $addedBy . '",dateAdded="' . time() . '"';
-            $clientId = addlistinggetlastid('userMaster', $namevalue4);
-        } else {
-            $clientId = $clientidcheck['id'];
-        }
-    }
+    $namevalue2 = 'subject="' . $title . '",fromEmail="' . $_SESSION['username'] . '",toEmail="' . $email . '",dateAdded="' . $dateAdded . '",addedBy="' . $addedBy . '"';
 
-    if (trim($_POST['startDate']) == '' or trim($_POST['endDate']) == '') {
-        $night = 0;
-        $day = 0;
-    }
+    $querymailid = addlistinggetlastid('queryMail', $namevalue2);
 
-    if ($_REQUEST['editid'] == '') {
-
-        $rs = GetPageRecord($select, 'sys_userMaster', 'id=1 ');
-
-        $invoicedataa = mysqli_fetch_array($rs);
-
-        $namevalue2 = 'subject="' . $title . '",fromEmail="' . $_SESSION['username'] . '",toEmail="' . $email . '",dateAdded="' . $dateAdded . '",addedBy="' . $addedBy . '"';
-
-        $querymailid = addlistinggetlastid('queryMail', $namevalue2);
-
-        $bodycontent = '<div style="padding:30px 0px; background-color:#F4FDFF;  text-align:center">
+    $bodycontent = '<div style="padding:30px 0px; background-color:#F4FDFF;  text-align:center">
 
 <img src="' . $fullurl . 'profilepic/' . $invoicedataa['invoiceLogo'] . '"  height="50" width="200" style="margin-bottom:20px;">
 
@@ -2336,51 +2331,51 @@ if ($_POST['action'] == 'addQuery') {
   </div>
 
 </div><br>' . $details . '<br><br>' . $emailsignature;
+    // comment by sonam 18/12/2023
+    // $namevalue = 'startDate="' . $startDate . '",endDate="' . $endDate . '",name="' . $name . '",phone="' . $mobile . '",countryId="' . $country . '",stateId="' . $state . '",cityId="' . $city . '",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="' . $serviceId . '",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",assignTo="' . $assignTo . '", leadSource="' . $leadSource . '",title="' . $title . '",details="' . $details . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",day="' . $day . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="' . $fromCity . '",travelMonth="' . $travelMonth . '",priorityStatus="' . $priorityStatus . '"';
+    $namevalue = 'startDate="' . $startDate . '",endDate="' . $endDate . '",name="' . $name . '",phone="' . $mobile . '",countryId="' . $country . '",stateId="' . $state . '",cityId="' . $city . '",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="' . $serviceId . '",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",assignTo="' . $assignTo . '", leadSource="' . $leadSource . '",title="' . $title . '",details="' . $details . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",day="' . $day . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="' . $fromCity . '",destination_city="' . $destination_city . '",priorityStatus="' . $priorityStatus . '"';
 
-        $namevalue = 'startDate="' . $startDate . '",endDate="' . $endDate . '",name="' . $name . '",phone="' . $mobile . '",countryId="' . $country . '",stateId="' . $state . '",cityId="' . $city . '",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="' . $serviceId . '",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",assignTo="' . $assignTo . '", leadSource="' . $leadSource . '",title="' . $title . '",details="' . $details . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",day="' . $day . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="' . $fromCity . '",travelMonth="' . $travelMonth . '",priorityStatus="' . $priorityStatus . '"';
+    $queryId = addlistinggetlastid('queryMaster', $namevalue);
 
-        $queryId = addlistinggetlastid('queryMaster', $namevalue);
+    $namevalue2 = 'subject="#' . makeQueryId($queryId) . ' Query Created!",details="' . addslashes($bodycontent) . '",queryId="' . $queryId . '"';
 
-        $namevalue2 = 'subject="#' . makeQueryId($queryId) . ' Query Created!",details="' . addslashes($bodycontent) . '",queryId="' . $queryId . '"';
+    $where = 'id="' . $querymailid . '"';
 
-        $where = 'id="' . $querymailid . '"';
+    updatelisting('queryMail', $namevalue2, $where);
 
-        updatelisting('queryMail', $namevalue2, $where);
+    $namevalue3 = 'details="Query Created",queryId="' . $queryId . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",logType="add_query"';
 
-        $namevalue3 = 'details="Query Created",queryId="' . $queryId . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",logType="add_query"';
+    addlisting('queryLogs', $namevalue3);
 
-        addlisting('queryLogs', $namevalue3);
+    $namevalue4 = 'details="New Query Assigned", taskType="Notification",queryId="' . $queryId . '",reminderDate="' . $dateAdded . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",assignTo="' . $assignTo . '"';
 
-        $namevalue4 = 'details="New Query Assigned", taskType="Notification",queryId="' . $queryId . '",reminderDate="' . $dateAdded . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",assignTo="' . $assignTo . '"';
+    addlisting('queryTask', $namevalue4);
 
-        addlisting('queryTask', $namevalue4);
+    $mailto = $email;
 
-        $mailto = $email;
+    $subject = '#' . makeQueryId($queryId) . ' Query Created!';
 
-        $subject = '#' . makeQueryId($queryId) . ' Query Created!';
+    send_attachment_mail($fromemail, $mailto, $subject, $bodycontent . '<img src="' . $fullurl . 'rmail.php?q=' . $querymailid . '" width="0" height="0">', $ccmail, $file_name);
+  } else {
 
-        send_attachment_mail($fromemail, $mailto, $subject, $bodycontent . '<img src="' . $fullurl . 'rmail.php?q=' . $querymailid . '" width="0" height="0">', $ccmail, $file_name);
+    $namevalue = 'startDate="' . $startDate . '",endDate="' . $endDate . '",name="' . $name . '",phone="' . $mobile . '",countryId="' . $country . '",stateId="' . $state . '",cityId="' . $city . '",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="' . $serviceId . '",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",leadSource="' . $leadSource . '",title="' . $title . '",details="' . $details . '",day="' . $day . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="' . $fromCity . '",travelMonth="' . $travelMonth . '",priorityStatus="' . $priorityStatus . '",submitName="' . $submitName . '", addedBy="' . $addedBy . '"';
 
-    } else {
+    $where = 'id="' . decode($_POST['editid']) . '"';
+    updatelisting('queryMaster', $namevalue, $where);
 
-        $namevalue = 'startDate="' . $startDate . '",endDate="' . $endDate . '",name="' . $name . '",phone="' . $mobile . '",countryId="' . $country . '",stateId="' . $state . '",cityId="' . $city . '",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="' . $serviceId . '",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",leadSource="' . $leadSource . '",title="' . $title . '",details="' . $details . '",day="' . $day . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="' . $fromCity . '",travelMonth="' . $travelMonth . '",priorityStatus="' . $priorityStatus . '",submitName="' . $submitName . '", addedBy="'.$addedBy.'"';
+    $namevalue4 = 'submitName="' . $submitName . '",firstName="' . $name . '",mobile="' . $mobile . '",email="' . $email . '"';
+    updatelisting('userMaster', $namevalue4, 'id="' . $clientId . '"');
 
-        $where = 'id="' . decode($_POST['editid']) . '"';
-        updatelisting('queryMaster', $namevalue, $where);
+    $namevalue3 = 'details="Query Update",queryId="' . decode($_POST['editid']) . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",logType="edit_query"';
 
-        $namevalue4 = 'submitName="' . $submitName . '",firstName="' . $name . '",mobile="' . $mobile . '",email="' . $email . '"';
-        updatelisting('userMaster', $namevalue4, 'id="' . $clientId . '"');
+    addlisting('queryLogs', $namevalue3);
+  }
 
-        $namevalue3 = 'details="Query Update",queryId="' . decode($_POST['editid']) . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",logType="edit_query"';
-
-        addlisting('queryLogs', $namevalue3);
-    }
-
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=query&save=1');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('display.html?ga=query&save=1');
+  </script>
+<?php
 }
 
 
@@ -2404,12 +2399,12 @@ if (trim($_REQUEST['action']) == 'changeassignstatus' && trim($_REQUEST['queryid
   updatelisting('queryMaster', $namevalue, $where);
 
 
-    $namevalue3 = 'details="Assign Query",queryId="' . $id . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",userId="' . $assignTo . '",logType="assign_query"';
-    addlisting('queryLogs', $namevalue3);
+  $namevalue3 = 'details="Assign Query",queryId="' . $id . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",userId="' . $assignTo . '",logType="assign_query"';
+  addlisting('queryLogs', $namevalue3);
 
-    $namevalue4 = 'details="New Query Assigned", taskType="Notification",queryId="' . $id . '",reminderDate="'.$dateAdded.'",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",assignTo="' . $assignTo . '"';
+  $namevalue4 = 'details="New Query Assigned", taskType="Notification",queryId="' . $id . '",reminderDate="' . $dateAdded . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",assignTo="' . $assignTo . '"';
 
-    addlisting('queryTask', $namevalue4);
+  addlisting('queryTask', $namevalue4);
 }
 
 
@@ -2436,9 +2431,16 @@ if (trim($_REQUEST['action']) == 'addnotes' && trim($_REQUEST['queryid']) != '' 
 
 
 
-  $namevalue = 'queryId="' . $queryid . '",details="' . $details . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '"';
+  $namevalue = 'queryId="' . $queryid . '",details="' . $details . '",status="' . $_REQUEST['sts'] . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '"'; // update by satyam
+
 
   addlisting('queryNotes', $namevalue);
+
+  //   query master update date column update add code by sonam 15/12/2023
+
+  $namevalue_query = 'updateDate="' . $dateAdded . '"';
+  $where_cond = 'id ="' . $queryid . '"';
+  updatelisting('queryMaster', $namevalue_query, $where_cond);
 
 
 
@@ -2472,32 +2474,32 @@ if (trim($_REQUEST['action']) == 'addnotes' && trim($_REQUEST['queryid']) != '' 
 if (trim($_REQUEST['action']) == 'addtask' && trim($_REQUEST['details']) != '') {
 
 
-    $queryid = decode($_REQUEST['queryid']);
-    $details = addslashes($_REQUEST['details']);
-    $reminderDate = date('Y-m-d', strtotime($_REQUEST['reminderDate']));
-    $reminderTime = $_REQUEST['reminderTime'];
-    $status = addslashes($_REQUEST['status']);
-    $taskType = addslashes($_REQUEST['taskType']);
-    $assignTo = addslashes($_REQUEST['assignTo']);
-    $reminderDate = $reminderDate . ' ' . $reminderTime;
-    $reminderDate = date('Y-m-d H:i:s', strtotime($reminderDate));
-    $addedBy = $_SESSION['userid'];
-    $dateAdded = date('Y-m-d H:i:s');
+  $queryid = decode($_REQUEST['queryid']);
+  $details = addslashes($_REQUEST['details']);
+  $reminderDate = date('Y-m-d', strtotime($_REQUEST['reminderDate']));
+  $reminderTime = $_REQUEST['reminderTime'];
+  $status = addslashes($_REQUEST['status']);
+  $taskType = addslashes($_REQUEST['taskType']);
+  $assignTo = addslashes($_REQUEST['assignTo']);
+  $reminderDate = $reminderDate . ' ' . $reminderTime;
+  $reminderDate = date('Y-m-d H:i:s', strtotime($reminderDate));
+  $addedBy = $_SESSION['userid'];
+  $dateAdded = date('Y-m-d H:i:s');
 
 
-    $namevalue = 'queryId="' . $queryid . '",details="' . $details . '",status="' . $status . '",reminderDate="' . $reminderDate . '",assignTo="' . $assignTo . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",taskType="' . $taskType . '"';
-    addlisting('queryTask', $namevalue);
+  $namevalue = 'queryId="' . $queryid . '",details="' . $details . '",status="' . $status . '",reminderDate="' . $reminderDate . '",assignTo="' . $assignTo . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",taskType="' . $taskType . '"';
+  addlisting('queryTask', $namevalue);
 
 
-    $namevaluek = 'details="' . $taskType . ' Created",queryId="' . $queryid . '",addedBy="' . $addedBy . '",statusComment="' . $details . '",dateAdded="' . $dateAdded . '",logType="add_task"';
-    addlisting('queryLogs', $namevaluek);
+  $namevaluek = 'details="' . $taskType . ' Created",queryId="' . $queryid . '",addedBy="' . $addedBy . '",statusComment="' . $details . '",dateAdded="' . $dateAdded . '",logType="add_task"';
+  addlisting('queryLogs', $namevaluek);
 
 
-    ?>
+?>
 
-    <script>
-        parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryid']; ?>&c=3&save=1');
-    </script>
+  <script>
+    parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryid']; ?>&c=3&save=1');
+  </script>
 
 
 <?php }
@@ -2529,7 +2531,7 @@ if (trim($_POST['action']) == 'composemail' && $_POST['queryId'] != '' && $_POST
   $day = addslashes($_POST['day']);
 
   $toEmail = addslashes($_POST['toEmail']);
-	
+
   $reply_to = $_POST['reply_to'];
 
   $cc = addslashes($_POST['cc']);
@@ -2641,9 +2643,9 @@ if (trim($_POST['action']) == 'sendtosupplier' && $_POST['queryid'] != '' && $_P
 
     $namevaluek = 'details="Mail Sent to (' . $toEmail . ')",queryId="' . $queryId . '",addedBy="' . $_SESSION['userid'] . '",statusComment="",dateAdded="' . date('Y-m-d H:i:s') . '",logType="add_mail"';
     addlisting('queryLogs', $namevaluek);
-    
-    
-     if ($_FILES["attachmentfile"]["tmp_name"] != "") {
+
+
+    if ($_FILES["attachmentfile"]["tmp_name"] != "") {
       $rt = mt_rand() . strtotime(date("YMDHis"));
       $companyLogoFileName = basename($_FILES['attachmentfile']['name']);
       $companyLogoFileExtension = pathinfo($companyLogoFileName, PATHINFO_EXTENSION);
@@ -2655,7 +2657,7 @@ if (trim($_POST['action']) == 'sendtosupplier' && $_POST['queryid'] != '' && $_P
 
     $ccmail = $cc;
     //$file_name = '';
-    
+
     $file_name = $receiptFile;
     send_attachment_mail($fromemail, $toEmail, stripslashes($subject), stripslashes($EmailDetails . '<img src="' . $fullurl . 'readmail.php?m=' . encode($lastid) . '" width="0" height="0">'), $ccmail . ',' . $_SESSION['username'], $file_name);
   }
@@ -2803,25 +2805,24 @@ if (trim($_POST['action']) == 'addquerypayment' && $_POST['queryId'] != '' && $_
   $namevalue3 = 'details="Update Payment",queryId="' . decode($_REQUEST['queryId']) . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . date('Y-m-d H:i:s') . '",logType="edit_query"';
   addlisting('queryLogs', $namevalue3);
 
-    $assign_to_data = GetPageRecord('assignTo', 'queryMaster', 'id="'.decode($_POST['queryId']).'"');
-    $assign_to_result = mysqli_fetch_array($assign_to_data);
+  $assign_to_data = GetPageRecord('assignTo', 'queryMaster', 'id="' . decode($_POST['queryId']) . '"');
+  $assign_to_result = mysqli_fetch_array($assign_to_data);
 
-    $namevalue4 = 'details="Payment Scheduled", taskType="Reminder", queryId="' . decode($_POST['queryId']) . '",reminderDate="' .  date('Y-m-d H:i:s', strtotime($_REQUEST['startDate'])) . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . date('Y-m-d H:i:s') . '",assignTo="'.$assign_to_result['assignTo'].'"';
+  $namevalue4 = 'details="Payment Scheduled", taskType="Reminder", queryId="' . decode($_POST['queryId']) . '",reminderDate="' .  date('Y-m-d H:i:s', strtotime($_REQUEST['startDate'])) . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . date('Y-m-d H:i:s') . '",assignTo="' . $assign_to_result['assignTo'] . '"';
 
-    addlisting('queryTask', $namevalue4);
+  addlisting('queryTask', $namevalue4);
 
-    if($_REQUEST['redirect']!='adminverify'){
-      ?>
-      <script>
-          parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryId']; ?>&c=5&save=1');
-      </script>
-      <?php } else { ?>
-      <script>
-          parent.redirectpage('display.html?ga=verifyreceipts&status=2');
-      </script>
-      <?php
-    }
-
+  if ($_REQUEST['redirect'] != 'adminverify') {
+  ?>
+    <script>
+      parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryId']; ?>&c=5&save=1');
+    </script>
+  <?php } else { ?>
+    <script>
+      parent.redirectpage('display.html?ga=verifyreceipts&status=2');
+    </script>
+  <?php
+  }
 }
 
 
@@ -2848,7 +2849,7 @@ if (trim($_REQUEST['action']) == 'genrateinvoice' && $_REQUEST['queryId'] != '' 
     addlisting('queryLogs', $namevalue3);
   }
 
-?>
+  ?>
   <script>
     parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryId']; ?>&c=5&save=1');
   </script>
@@ -2870,23 +2871,23 @@ if (trim($_REQUEST['action']) == 'saveGSTpackagebuilder' && trim($_REQUEST['pid'
   $showtcs = $_REQUEST['showtcs'];
   $totalCost = $_REQUEST['totalCost'];
   $ebo = $_REQUEST['ebo'];
-  $baseMarkup=0;
+  $baseMarkup = 0;
 
 
-    if($_REQUEST['customerstate']){
-        $cgst = 9;
-        $sgst = 9;
-    } else {
-        $igst = 18;
+  if ($_REQUEST['customerstate']) {
+    $cgst = 9;
+    $sgst = 9;
+  } else {
+    $igst = 18;
+  }
+  $tcsPercent = 0;
+  $rs = GetPageRecord('*', 'sys_packageBuilderEvent', 'packageId="' . $id . '"');
+  while ($rest = mysqli_fetch_array($rs)) {
+    $baseMarkup += $rest['markupTotal'];
+    if ($rest['international_trip'] == 'true') {
+      $tcsPercent = 5;
     }
-    $tcsPercent = 0;
-  $rs=GetPageRecord('*','sys_packageBuilderEvent','packageId="'.$id.'"');
- while($rest=mysqli_fetch_array($rs)) {
-     $baseMarkup+=$rest['markupTotal'];
-     if($rest['international_trip'] == 'true'){
-         $tcsPercent = 5;
-     }
- }
+  }
   $namevalue = 'cgst="' . $cgst . '",sgst="' . $sgst . '",igst="' . $igst . '",showcgst="' . $showcgst . '",showsgst="' . $showsgst . '",showigst="' . $showigst . '",showtcs="' . $showtcs . '",tcsPercent="' . $tcsPercent . '",totalDiscount="' . $totalDiscount . '",baseMarkup="' . $baseMarkup . '",ebo="' . $ebo . '"';
   $where = 'id="' . $id . '"';
   updatelisting('sys_packageBuilder', $namevalue, $where);
@@ -3335,32 +3336,28 @@ if ($_POST['action'] == 'importFBleads' && $_FILES['importfield']['name'] != '')
           $a2 = GetPageRecord('*', 'sys_user_city_mapping', 'city_id="' . $destinationId . '"');
           $userCount = mysqli_num_rows($a2);
           if ($userCount > 0) {
-              if($userCount > 1){
-                  $userIdArr = [];
-                  while($res = mysqli_fetch_assoc($a2)){
-                      $userIdArr[] = $res['user_id'];
-                  }
-
-                  $userIds = implode(',',$userIdArr);
-
-                  $getUserWithMinQry = GetPageRecord('assignTo,COUNT(id) as minNewQry', 'queryMaster', " statusId=1 and assignTo IN($userIds) GROUP BY assignTo ORDER BY minNewQry ASC LIMIT 1" );
-                  if(mysqli_num_rows($getUserWithMinQry) > 0){
-                      $userData = mysqli_fetch_assoc($getUserWithMinQry);
-                      $assignedToId = $userData['assignTo'];
-
-                  }
-                  else{
-                      $maxSrchIndx = (count($userIdArr) - 1);
-                      $assignedToId = $userIdArr[rand(0,$maxSrchIndx)];
-                  }
+            if ($userCount > 1) {
+              $userIdArr = [];
+              while ($res = mysqli_fetch_assoc($a2)) {
+                $userIdArr[] = $res['user_id'];
               }
-              else{
-                  $getUser = mysqli_fetch_assoc($a2);
-                  $assignedToId = $getUser['user_id'];
+
+              $userIds = implode(',', $userIdArr);
+
+              $getUserWithMinQry = GetPageRecord('assignTo,COUNT(id) as minNewQry', 'queryMaster', " statusId=1 and assignTo IN($userIds) GROUP BY assignTo ORDER BY minNewQry ASC LIMIT 1");
+              if (mysqli_num_rows($getUserWithMinQry) > 0) {
+                $userData = mysqli_fetch_assoc($getUserWithMinQry);
+                $assignedToId = $userData['assignTo'];
+              } else {
+                $maxSrchIndx = (count($userIdArr) - 1);
+                $assignedToId = $userIdArr[rand(0, $maxSrchIndx)];
               }
-          }
-          else{
-              $assignedToId = 1;
+            } else {
+              $getUser = mysqli_fetch_assoc($a2);
+              $assignedToId = $getUser['user_id'];
+            }
+          } else {
+            $assignedToId = 1;
           }
 
           $a = GetPageRecord('*', 'userMaster', 'mobile="' . $phone . '" and userType=4');
@@ -3376,32 +3373,31 @@ if ($_POST['action'] == 'importFBleads' && $_FILES['importfield']['name'] != '')
           $b = GetPageRecord('*', 'sys_userMaster', 'id="' . $assignedToId . '"');
           $agentdetails = mysqli_fetch_array($b);
           $agentname = $agentdetails['firstName'] . ' ' . $agentdetails['lastName'];
-          if($agentdetails['mobile'] == ''){
-                  $agentphone = $agentdetails['phone'];
-              }
-          else{
+          if ($agentdetails['mobile'] == '') {
+            $agentphone = $agentdetails['phone'];
+          } else {
             $agentphone = $agentdetails['mobile'];
           }
 
           if ($phone != '') {
-            $namevalue = 'startDate="' . $chekin . '",endDate="' . $checkout . '",name="' . $clientName . '",phone="' . $phone . '",cityId="",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="1",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",assignTo="' .$assignedToId .'",leadSource="' . $leadSource . '",details="' . $description . ' (' . $details . ')' . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="Delhi",travelMonth="' . $travelMonth . '"';
+            $namevalue = 'startDate="' . $chekin . '",endDate="' . $checkout . '",name="' . $clientName . '",phone="' . $phone . '",cityId="",email="' . $email . '",destinationId="' . $destinationId . '",serviceId="1",adult="' . $adult . '",child="' . $child . '",infant="' . $infant . '",assignTo="' . $assignedToId . '",leadSource="' . $leadSource . '",details="' . $description . ' (' . $details . ')' . '",addedBy="' . $addedBy . '",dateAdded="' . $dateAdded . '",updateDate="' . $dateAdded . '",clientId="' . $clientId . '",fromCity="Delhi",travelMonth="' . $travelMonth . '"';
             $queryId = addlistinggetlastid('queryMaster', $namevalue);
           }
-		  
-		  
-          if ($assignedToId != 1) {	
+
+
+          if ($assignedToId != 1) {
             $userid = '2000217680';
             $passwd = 'ksrcbmxS';
             $supportTeam = '8544811103';
 
-            $msgReqURL = 'https://media.smsgupshup.com/GatewayAPI/rest?userid=2000217680&password='.$passwd.'&send_to='.$phone.'&v=1.1&format=json&msg_type=TEXT&method=SENDMESSAGE&msg=Dear+'.urlencode($clientName).'%2C%0A%0AThank+you+for+contacting+us%21+Our+travel+buddy+'.urlencode($agentname).'+will+contact+you+shortly%21%F0%9F%98%87%0A%0AYou+can+also+reach+out+to+our+travel+buddy%21+%F0%9F%93%9E+%0A%0A%2ATravel+Buddy%2A%3A+%2A'.urlencode($agentname).'%2A+%0A%2AContact+Details%2A%3A++%2A'.$agentphone.'%2A+%0A%0ABe+Ready+To+Save+Huge+On+Flights+%E2%9C%88%EF%B8%8F%2C+Stays+%F0%9F%8F%A8%2C++Holiday+%F0%9F%9B%84%2C+%26+Cabs+for+your+next+trip+to+'.urlencode($destination).'+%F0%9F%9A%95%0A%0APlan+Your+Trip+with+Us+Now%21%F0%9F%98%89';
-                  
+            $msgReqURL = 'https://media.smsgupshup.com/GatewayAPI/rest?userid=2000217680&password=' . $passwd . '&send_to=' . $phone . '&v=1.1&format=json&msg_type=TEXT&method=SENDMESSAGE&msg=Dear+' . urlencode($clientName) . '%2C%0A%0AThank+you+for+contacting+us%21+Our+travel+buddy+' . urlencode($agentname) . '+will+contact+you+shortly%21%F0%9F%98%87%0A%0AYou+can+also+reach+out+to+our+travel+buddy%21+%F0%9F%93%9E+%0A%0A%2ATravel+Buddy%2A%3A+%2A' . urlencode($agentname) . '%2A+%0A%2AContact+Details%2A%3A++%2A' . $agentphone . '%2A+%0A%0ABe+Ready+To+Save+Huge+On+Flights+%E2%9C%88%EF%B8%8F%2C+Stays+%F0%9F%8F%A8%2C++Holiday+%F0%9F%9B%84%2C+%26+Cabs+for+your+next+trip+to+' . urlencode($destination) . '+%F0%9F%9A%95%0A%0APlan+Your+Trip+with+Us+Now%21%F0%9F%98%89';
+
             $curl1 = curl_init($msgReqURL);
             curl_setopt($curl1, CURLOPT_POST, true);
             curl_setopt($curl1, CURLOPT_RETURNTRANSFER, true);
             $result1 = curl_exec($curl1);
             curl_close($curl1);
-            echo "\n\ntest: ".$result1;
+            echo "\n\ntest: " . $result1;
           }
         }
       }
@@ -3966,7 +3962,7 @@ if (trim($_POST['action']) == 'addSupplierNotes' && trim($_POST['queryId']) != '
   <script>
     parent.querySupplierNotes();
   </script>
-<?php
+  <?php
 }
 
 
@@ -3977,19 +3973,17 @@ if (trim($_POST['action']) == 'addSupplierNotes' && trim($_POST['queryId']) != '
 
 if (trim($_REQUEST['action']) == 'deletebill' && trim($_REQUEST['parentId']) != '' && trim($_REQUEST['id']) != '') {
   deleteRecord('sys_PackagePayment', 'id="' . decode($_REQUEST['id']) . '"');
-  if($_REQUEST['parentId']!='null'){
-?>
-  <script>
-
-    parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['parentId']; ?>&save=1&c=5');
-  </script>
-<?php } else {
-?>
+  if ($_REQUEST['parentId'] != 'null') {
+  ?>
     <script>
-
+      parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['parentId']; ?>&save=1&c=5');
+    </script>
+  <?php } else {
+  ?>
+    <script>
       parent.redirectpage('display.html?ga=verifyreceipts');
     </script>
-<?php
+  <?php
   }
 }
 
@@ -4009,7 +4003,7 @@ if (trim($_POST['action']) == 'addcurrencyexchange') {
     addlistinggetlastid('currencyExchangeMaster', $namevalue2);
   }
 
-?>
+  ?>
   <script>
     parent.redirectpage('display.html?ga=currencyExchange');
   </script>
@@ -5974,398 +5968,396 @@ if ($_REQUEST['action'] == 'createflyer' && $_REQUEST['typevar'] != '') {
 
 <?php if (trim($_REQUEST['action']) == 'editpaymentpricing' && trim($_REQUEST['pid']) != '') {
 
-    $query_id = $_POST['queryid'];
-    $price = $_POST['payment_pricing'];
-    $id = $_REQUEST['pid'];
-    $description = $_POST['description'];
-    $dateAdded = date('Y-m-d H:i:s');
+  $query_id = $_POST['queryid'];
+  $price = $_POST['payment_pricing'];
+  $id = $_REQUEST['pid'];
+  $description = $_POST['description'];
+  $dateAdded = date('Y-m-d H:i:s');
 
-    $namevalue = 'amount="' . $price . '", description="' . $description . '", updated_at="'.$dateAdded.'"';
-    $where = 'id="' . $id . '" ';
-    updatelisting('queryPaymentLinks', $namevalue, $where);
+  $namevalue = 'amount="' . $price . '", description="' . $description . '", updated_at="' . $dateAdded . '"';
+  $where = 'id="' . $id . '" ';
+  updatelisting('queryPaymentLinks', $namevalue, $where);
 
-    $payment_link_data = GetPageRecord('reference_id', 'queryPaymentLinks', 'id="' . $id. '"');
-    $payment_link_result = mysqli_fetch_array($payment_link_data);
-    $reference_id = $payment_link_result['reference_id'];
+  $payment_link_data = GetPageRecord('reference_id', 'queryPaymentLinks', 'id="' . $id . '"');
+  $payment_link_result = mysqli_fetch_array($payment_link_data);
+  $reference_id = $payment_link_result['reference_id'];
 
-    $name_value_1 = 'amount="'.$price.'"';
-    $where_1 = 'paymentId="'.$reference_id.'"';
-    updatelisting('sys_PackagePayment', $name_value_1, $where_1);
+  $name_value_1 = 'amount="' . $price . '"';
+  $where_1 = 'paymentId="' . $reference_id . '"';
+  updatelisting('sys_PackagePayment', $name_value_1, $where_1);
 
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $query_id; ?>&c=11&save=1');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $query_id; ?>&c=11&save=1');
+  </script>
+<?php
 }
 ?>
 
-<?php if(trim($_REQUEST['action']) == 'addotpreportpgenerate') {
-    // ini_set('display_errors', '1');
-    // ini_set('display_startup_errors', '1');
-    // error_reporting(E_ALL);
-    include "config/mail.php";
-    $a = GetPageRecord('*', 'sys_PackagePayment', 'id="' . $_REQUEST['editId'] . '"');
-    $result = mysqli_fetch_array($a);
-    if($_REQUEST['otptext']==encode($result['id'])+$result['queryId']){
-        updatelisting('sys_PackagePayment','payment_verified=1','id="'.$_REQUEST['editId'].'"');
-        $b2 = GetPageRecord('*','queryMaster','id="' . $result['queryId'].'"');
-        $customer = mysqli_fetch_array($b2);
-        $customerEmail = $customer['email'];
-        $b3 = GetPageRecord('*','sys_userMaster','  id="'.$customer['assignTo'].'"');
-        $seller = mysqli_fetch_array($b3);
-        $sellerEmail = $seller['email'];
-        $bookingId = encode($customer['id']);
-        $receipt_body = $fullurl . 'paymentreceipt.php?id=' .  '&queryId=' . encode($result['queryId']) . '&packageId=' . $result['packageId'] . '&paymentId=' . $_REQUEST['editId'];
-        // echo $customerEmail;
-        
-        $options = [
-          'ssl' => [
-              'method' => 'GET',
-              'header' => 'Content-type: text/html; charset=utf-8', // Adjust headers as needed
-          ],
-      ];
-      
-      $context = stream_context_create($options);
-      
-      // Make the HTTP request and store the response in $html_body
-      $html_body = file_get_contents($receipt_body, false, $context);
-      
-      // Check if the request was successful
-      if ($html_body !== false) {
-          // $html_body now contains the HTML content of the requested page
-          echo $html_body;
-      } else {
-          // Handle error, e.g., log or display an error message
-          echo 'Error fetching HTML content';
-      }
-    send_report_mail('info@tripzygo.in', $customerEmail, 'Payment Receipt - '.$bookingId, $html_body, 'accounts@tripzygo.in,'.$sellerEmail,'');
+<?php if (trim($_REQUEST['action']) == 'addotpreportpgenerate') {
+  // ini_set('display_errors', '1');
+  // ini_set('display_startup_errors', '1');
+  // error_reporting(E_ALL);
+  include "config/mail.php";
+  $a = GetPageRecord('*', 'sys_PackagePayment', 'id="' . $_REQUEST['editId'] . '"');
+  $result = mysqli_fetch_array($a);
+  if ($_REQUEST['otptext'] == encode($result['id']) + $result['queryId']) {
+    updatelisting('sys_PackagePayment', 'payment_verified=1', 'id="' . $_REQUEST['editId'] . '"');
+    $b2 = GetPageRecord('*', 'queryMaster', 'id="' . $result['queryId'] . '"');
+    $customer = mysqli_fetch_array($b2);
+    $customerEmail = $customer['email'];
+    $b3 = GetPageRecord('*', 'sys_userMaster', '  id="' . $customer['assignTo'] . '"');
+    $seller = mysqli_fetch_array($b3);
+    $sellerEmail = $seller['email'];
+    $bookingId = encode($customer['id']);
+    $receipt_body = $fullurl . 'paymentreceipt.php?id=' .  '&queryId=' . encode($result['queryId']) . '&packageId=' . $result['packageId'] . '&paymentId=' . $_REQUEST['editId'];
+    // echo $customerEmail;
 
+    $options = [
+      'ssl' => [
+        'method' => 'GET',
+        'header' => 'Content-type: text/html; charset=utf-8', // Adjust headers as needed
+      ],
+    ];
 
+    $context = stream_context_create($options);
+
+    // Make the HTTP request and store the response in $html_body
+    $html_body = file_get_contents($receipt_body, false, $context);
+
+    // Check if the request was successful
+    if ($html_body !== false) {
+      // $html_body now contains the HTML content of the requested page
+      echo $html_body;
+    } else {
+      // Handle error, e.g., log or display an error message
+      echo 'Error fetching HTML content';
     }
-    if($_REQUEST['otptext']=="00000"){
-        updatelisting('sys_PackagePayment','payment_verified=0','id="'.$_REQUEST['editId'].'"');
-    }
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=verifyreceipts&status=1');
-    </script>
-    <?php
+    send_report_mail('info@tripzygo.in', $customerEmail, 'Payment Receipt - ' . $bookingId, $html_body, 'accounts@tripzygo.in,' . $sellerEmail, '');
+  }
+  if ($_REQUEST['otptext'] == "00000") {
+    updatelisting('sys_PackagePayment', 'payment_verified=0', 'id="' . $_REQUEST['editId'] . '"');
+  }
+?>
+  <script>
+    // parent.redirectpage('display.html?ga=verifyreceipts&status=1');
+    parent.redirectpage(document.referrer);
+  </script>
+<?php
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'addpaymentpricing' && trim($_REQUEST['queryid']) != '') {
 
-    $reference_id = 'ref_' . time() . substr(md5(mt_rand()), 0, 5);
-    $query_id = decode($_REQUEST['queryid']);
-    $price = $_POST['payment_pricing'];
-    $description = $_POST['description'];
-    $status = 'created';
-    $created_by = $LoginUserDetails['id'];
-    $dateAdded = date('Y-m-d H:i:s');
+  $reference_id = 'ref_' . time() . substr(md5(mt_rand()), 0, 5);
+  $query_id = decode($_REQUEST['queryid']);
+  $price = $_POST['payment_pricing'];
+  $description = $_POST['description'];
+  $status = 'created';
+  $created_by = $LoginUserDetails['id'];
+  $dateAdded = date('Y-m-d H:i:s');
 
-    $namevalue = 'query_id="' . $query_id . '", reference_id="'.$reference_id.'", amount="' . $price . '", description="' . $description . '", status="'.$status.'", created_by="' . $created_by . '", created_at="'.$dateAdded.'", updated_at="'.$dateAdded.'"';
+  $namevalue = 'query_id="' . $query_id . '", reference_id="' . $reference_id . '", amount="' . $price . '", description="' . $description . '", status="' . $status . '", created_by="' . $created_by . '", created_at="' . $dateAdded . '", updated_at="' . $dateAdded . '"';
 
-    addlisting('queryPaymentLinks', $namevalue);
+  addlisting('queryPaymentLinks', $namevalue);
 
-    $name_value_1 = 'paymentId="'.$reference_id.'", queryId="'.$query_id.'", amount="'.$price.'", paymentStatus="2", transectionType="razorpay", remark="razorpay" ';
+  $name_value_1 = 'paymentId="' . $reference_id . '", queryId="' . $query_id . '", amount="' . $price . '", paymentStatus="2", transectionType="razorpay", remark="razorpay" ';
 
-    addlisting('sys_PackagePayment', $name_value_1);
+  addlisting('sys_PackagePayment', $name_value_1);
 
-    ?>
-    <script>
-        parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryid']; ?>&c=11&save=1');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('display.html?ga=query&view=1&id=<?php echo $_REQUEST['queryid']; ?>&c=11&save=1');
+  </script>
+<?php
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'sendpaymentlinksms' && trim($_REQUEST['paymentLinkId']) != '') {
 
-    $payment_link_id = $_POST['paymentLinkId'];
+  $payment_link_id = $_POST['paymentLinkId'];
 
-    $payment_link_data = GetPageRecord('query_id,amount,description,payment_link_id,status,reference_id', 'queryPaymentLinks', 'id="' . $payment_link_id . '"');
-    $payment_link_result = mysqli_fetch_array($payment_link_data);
+  $payment_link_data = GetPageRecord('query_id,amount,description,payment_link_id,status,reference_id', 'queryPaymentLinks', 'id="' . $payment_link_id . '"');
+  $payment_link_result = mysqli_fetch_array($payment_link_data);
 
-    $query_id = $payment_link_result['query_id'];
-    $price = $payment_link_result['amount'] * 100;
-    $description = $payment_link_result['description'];
-    $payment_link_id_from_db = $payment_link_result['payment_link_id'];
-    $status = $payment_link_result['status'];
-    $reference_id = $payment_link_result['reference_id'];
+  $query_id = $payment_link_result['query_id'];
+  $price = $payment_link_result['amount'] * 100;
+  $description = $payment_link_result['description'];
+  $payment_link_id_from_db = $payment_link_result['payment_link_id'];
+  $status = $payment_link_result['status'];
+  $reference_id = $payment_link_result['reference_id'];
 
-    $query_data = GetPageRecord('name,email,phone', ' queryMaster ', 'id="' . $query_id . '"');
-    $query_data_result = mysqli_fetch_array($query_data);
+  $query_data = GetPageRecord('name,email,phone', ' queryMaster ', 'id="' . $query_id . '"');
+  $query_data_result = mysqli_fetch_array($query_data);
 
-    $name = $query_data_result['name'];
-    $email = $query_data_result['email'];
-    $phone = '+91' . $query_data_result['phone'];
+  $name = $query_data_result['name'];
+  $email = $query_data_result['email'];
+  $phone = '+91' . $query_data_result['phone'];
 
-    require('config/config.php');
-    require('payment/razorpay-php/Razorpay.php');
+  require('config/config.php');
+  require('payment/razorpay-php/Razorpay.php');
 
-    $api = new Api($keyId, $keySecret);
+  $api = new Api($keyId, $keySecret);
 
-    if ($payment_link_id_from_db == '') {
-        $payment_link = $api->paymentLink->create(
-            array('amount' => $price,
-                'currency' => 'INR',
-                'description' => $description,
-                'customer' => array(
-                    'name' => $name,
-                    'email' => $email,
-                    'contact' => $phone),
-                'notify' => array('sms' => true),
-                'reminder_enable' => false,
-            )
-        );
+  if ($payment_link_id_from_db == '') {
+    $payment_link = $api->paymentLink->create(
+      array(
+        'amount' => $price,
+        'currency' => 'INR',
+        'description' => $description,
+        'customer' => array(
+          'name' => $name,
+          'email' => $email,
+          'contact' => $phone
+        ),
+        'notify' => array('sms' => true),
+        'reminder_enable' => false,
+      )
+    );
 
-        if ($payment_link->status == 'created') {
-            $payment_link_api_id = $payment_link->id;
-            $payment_link_url = $payment_link->short_url;
-            $payment_link_status = 'sent';
-            $name_value = 'payment_link_id="' . $payment_link_api_id . '", payment_link_url="' . $payment_link_url . '", status="' . $payment_link_status . '"';
-            $where = 'id="' . $payment_link_id . '" ';
-            updatelisting('queryPaymentLinks', $name_value, $where);
-            $name_value_1 = 'paymentStatus="3"';
-            $where_1 = 'paymentId="' . $reference_id . '" ';
-            updatelisting('sys_PackagePayment', $name_value_1, $where_1);
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.');
-            echo json_encode($data);
-        } else {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['success' => false, 'msg' => 'Something Went Wrong ! Please Try Again']);
-        }
-        exit;
+    if ($payment_link->status == 'created') {
+      $payment_link_api_id = $payment_link->id;
+      $payment_link_url = $payment_link->short_url;
+      $payment_link_status = 'sent';
+      $name_value = 'payment_link_id="' . $payment_link_api_id . '", payment_link_url="' . $payment_link_url . '", status="' . $payment_link_status . '"';
+      $where = 'id="' . $payment_link_id . '" ';
+      updatelisting('queryPaymentLinks', $name_value, $where);
+      $name_value_1 = 'paymentStatus="3"';
+      $where_1 = 'paymentId="' . $reference_id . '" ';
+      updatelisting('sys_PackagePayment', $name_value_1, $where_1);
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.');
+      echo json_encode($data);
     } else {
-        if($status == 'paid'){
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => false, 'msg' => 'Payment Is Already Paid By Client.', 'info' => true);
-        }else{
-            $medium = "sms";
-            $payment_link_resend = $api->paymentLink->fetch($payment_link_id_from_db)->notifyBy($medium);
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.');
-        }
-        echo json_encode($data);
-        exit;
+      header('Content-Type: application/json; charset=utf-8');
+      echo json_encode(['success' => false, 'msg' => 'Something Went Wrong ! Please Try Again']);
     }
-
+    exit;
+  } else {
+    if ($status == 'paid') {
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => false, 'msg' => 'Payment Is Already Paid By Client.', 'info' => true);
+    } else {
+      $medium = "sms";
+      $payment_link_resend = $api->paymentLink->fetch($payment_link_id_from_db)->notifyBy($medium);
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.');
+    }
+    echo json_encode($data);
+    exit;
+  }
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'sendpaymentlinkwhatsapp' && trim($_REQUEST['paymentLinkId']) != '') {
 
-    $payment_link_id = $_POST['paymentLinkId'];
+  $payment_link_id = $_POST['paymentLinkId'];
 
-    $payment_link_data = GetPageRecord('query_id,amount,description,payment_link_id,payment_link_url,status,reference_id', 'queryPaymentLinks', 'id="' . $payment_link_id . '"');
-    $payment_link_result = mysqli_fetch_array($payment_link_data);
+  $payment_link_data = GetPageRecord('query_id,amount,description,payment_link_id,payment_link_url,status,reference_id', 'queryPaymentLinks', 'id="' . $payment_link_id . '"');
+  $payment_link_result = mysqli_fetch_array($payment_link_data);
 
-    $query_id = $payment_link_result['query_id'];
-    $price = $payment_link_result['amount'] * 100;
-    $description = $payment_link_result['description'];
-    $status = $payment_link_result['status'];
-    $reference_id = $payment_link_result['reference_id'];
+  $query_id = $payment_link_result['query_id'];
+  $price = $payment_link_result['amount'] * 100;
+  $description = $payment_link_result['description'];
+  $status = $payment_link_result['status'];
+  $reference_id = $payment_link_result['reference_id'];
 
-    $query_data = GetPageRecord('name,email,phone', ' queryMaster ', 'id="' . $query_id . '"');
-    $query_data_result = mysqli_fetch_array($query_data);
+  $query_data = GetPageRecord('name,email,phone', ' queryMaster ', 'id="' . $query_id . '"');
+  $query_data_result = mysqli_fetch_array($query_data);
 
-    $name = $query_data_result['name'];
-    $email = $query_data_result['email'];
-    $phone = '+91' . $query_data_result['phone'];
-    $payment_link_id_from_db = $payment_link_result['payment_link_id'];
-    $payment_link_url_from_db = $payment_link_result['payment_link_url'];
+  $name = $query_data_result['name'];
+  $email = $query_data_result['email'];
+  $phone = '+91' . $query_data_result['phone'];
+  $payment_link_id_from_db = $payment_link_result['payment_link_id'];
+  $payment_link_url_from_db = $payment_link_result['payment_link_url'];
 
-    require('config/config.php');
-    require('payment/razorpay-php/Razorpay.php');
+  require('config/config.php');
+  require('payment/razorpay-php/Razorpay.php');
 
-    $api = new Api($keyId, $keySecret);
+  $api = new Api($keyId, $keySecret);
 
-    if ($payment_link_id_from_db == '') {
-        $payment_link = $api->paymentLink->create(
-            array('amount' => $price,
-                'currency' => 'INR',
-                'description' => $description,
-                'customer' => array(
-                    'name' => $name,
-                    'email' => $email,
-                    'contact' => $phone),
-                'reminder_enable' => false,
-            )
-        );
+  if ($payment_link_id_from_db == '') {
+    $payment_link = $api->paymentLink->create(
+      array(
+        'amount' => $price,
+        'currency' => 'INR',
+        'description' => $description,
+        'customer' => array(
+          'name' => $name,
+          'email' => $email,
+          'contact' => $phone
+        ),
+        'reminder_enable' => false,
+      )
+    );
 
-        if ($payment_link->status == 'created') {
-            $payment_link_api_id = $payment_link->id;
-            $payment_link_url = $payment_link->short_url;
-            $payment_link_status = 'sent';
-            $name_value = 'payment_link_id="' . $payment_link_api_id . '", payment_link_url="' . $payment_link_url . '", status="' . $payment_link_status . '"';
-            $where = 'id="' . $payment_link_id . '" ';
-            updatelisting('queryPaymentLinks', $name_value, $where);
-            $name_value_1 = 'paymentStatus="3"';
-            $where_1 = 'paymentId="' . $reference_id . '" ';
-            updatelisting('sys_PackagePayment', $name_value_1, $where_1);
-            $url = 'https://api.whatsapp.com/send?text=' . str_replace(' ', '', $payment_link->short_url) . '&phone=' . $phone;
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.', 'url' => $url);
-            echo json_encode($data);
-        } else {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['success' => false, 'msg' => 'Something Went Wrong ! Please Try Again']);
-        }
-        exit;
-    }else{
-        if ($status == 'paid'){
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => false, 'msg' => 'Payment Is Already Paid By Client.', 'info' => true);
-        }else{
-            $url = 'https://api.whatsapp.com/send?text=' . str_replace(' ', '', $payment_link_url_from_db) . '&phone=' . $phone;
-            header('Content-Type: application/json; charset=utf-8');
-            $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.', 'url' => $url);
-        }
-        echo json_encode($data);
-        exit;
+    if ($payment_link->status == 'created') {
+      $payment_link_api_id = $payment_link->id;
+      $payment_link_url = $payment_link->short_url;
+      $payment_link_status = 'sent';
+      $name_value = 'payment_link_id="' . $payment_link_api_id . '", payment_link_url="' . $payment_link_url . '", status="' . $payment_link_status . '"';
+      $where = 'id="' . $payment_link_id . '" ';
+      updatelisting('queryPaymentLinks', $name_value, $where);
+      $name_value_1 = 'paymentStatus="3"';
+      $where_1 = 'paymentId="' . $reference_id . '" ';
+      updatelisting('sys_PackagePayment', $name_value_1, $where_1);
+      $url = 'https://api.whatsapp.com/send?text=' . str_replace(' ', '', $payment_link->short_url) . '&phone=' . $phone;
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.', 'url' => $url);
+      echo json_encode($data);
+    } else {
+      header('Content-Type: application/json; charset=utf-8');
+      echo json_encode(['success' => false, 'msg' => 'Something Went Wrong ! Please Try Again']);
     }
-
+    exit;
+  } else {
+    if ($status == 'paid') {
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => false, 'msg' => 'Payment Is Already Paid By Client.', 'info' => true);
+    } else {
+      $url = 'https://api.whatsapp.com/send?text=' . str_replace(' ', '', $payment_link_url_from_db) . '&phone=' . $phone;
+      header('Content-Type: application/json; charset=utf-8');
+      $data = array('success' => true, 'msg' => 'Payment Link Sent Successfully.', 'url' => $url);
+    }
+    echo json_encode($data);
+    exit;
+  }
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'schedulebreak' && trim($_REQUEST['userid']) != '') {
 
-    $minutes = $_POST['breaktime'];
-    $break_start_time = date('Y-m-d H:i');
-    $created_at = date('Y-m-d H:i');
-    $activity_type = $_POST['activitytype'];
-    $break_end_time = date('Y-m-d H:i:s', strtotime(sprintf('+ %d second', $minutes * 60)));
-    $status = 'scheduled';
-    $url = $_POST['url'];
-    $user_id = $_POST['userid'];
+  $minutes = $_POST['breaktime'];
+  $break_start_time = date('Y-m-d H:i');
+  $created_at = date('Y-m-d H:i');
+  $activity_type = $_POST['activitytype'];
+  $break_end_time = date('Y-m-d H:i:s', strtotime(sprintf('+ %d second', $minutes * 60)));
+  $status = 'scheduled';
+  $url = $_POST['url'];
+  $user_id = $_POST['userid'];
 
-    $namevalue = 'user_id="'.$user_id.'", minutes="'.$minutes.'", start_time="'.$break_start_time.'", end_time="'.$break_end_time.'", created_at="'.$created_at.'", activity_type="'.$activity_type.'", status="'.$status.'" ';
+  $namevalue = 'user_id="' . $user_id . '", minutes="' . $minutes . '", break_start_time="' . $break_start_time . '", break_end_time="' . $break_end_time . '", created_at="' . $created_at . '", activity_type="' . $activity_type . '", status="' . $status . '" ';
 
-    addlisting('useractivities', $namevalue);
+  addlisting('userBreaks', $namevalue);
 
-    updatelisting('sys_userMaster','onlineStatus=1,is_scheduled="yes"','id="'.$user_id.'"');
+  updatelisting('sys_userMaster', 'onlineStatus=1,is_scheduled="yes"', 'id="' . $user_id . '"');
 
-    $_SESSION['break_scheduled'] = 1;
+  $_SESSION['break_scheduled'] = 1;
 
-    ?>
-    <script>
-        parent.redirectpage('<?php echo $url; ?>');
-    </script>
-    <?php
+?>
+  <script>
+    parent.redirectpage('<?php echo $url; ?>');
+  </script>
+<?php
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'cancelSchedule' && trim($_REQUEST['id']) != '') {
 
-    $user_id = $_SESSION['userid'];
-    $id = $_POST['id'];
-    $name_value = 'status="cancelled"';
-    $where = 'id="'.$id.'"';
-    $is_proccesed = GetPageRecord('*', 'useractivities', 'id="'.$id.'"');
-    $is_proccesed_results = mysqli_fetch_array($is_proccesed);
-    if($is_proccesed_results['status'] == 'processed'){
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => true, 'msg' => 'Schedule Break Is Already Processed.');
-    }else{
-        updatelisting('useractivities', $name_value, $where);
-        updatelisting('sys_userMaster','onlineStatus=2,is_scheduled="no"','id="'.$user_id.'"');
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => true, 'msg' => 'Schedule Break Cancelled Successfully.');
-    }
-    echo json_encode($data);
-    exit;
-
+  $user_id = $_SESSION['userid'];
+  $id = $_POST['id'];
+  $name_value = 'status="cancelled"';
+  $where = 'id="' . $id . '"';
+  $is_proccesed = GetPageRecord('*', 'userBreaks', 'id="' . $id . '"');
+  $is_proccesed_results = mysqli_fetch_array($is_proccesed);
+  if ($is_proccesed_results['status'] == 'processed') {
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => true, 'msg' => 'Schedule Break Is Already Processed.');
+  } else {
+    updatelisting('userBreaks', $name_value, $where);
+    updatelisting('sys_userMaster', 'onlineStatus=2,is_scheduled="no"', 'id="' . $user_id . '"');
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => true, 'msg' => 'Schedule Break Cancelled Successfully.');
+  }
+  echo json_encode($data);
+  exit;
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'AskForDeletePermission' && trim($_REQUEST['billId']) != '') {
-    $bill_id = decode($_POST['billId']);
-    $query_id = decode($_POST['queryId']);
-    $asked_by = $_SESSION['userid'];
-    $permission_status = 'pending';
-    $date_time = date('Y-m-d H:i:s');
+  $bill_id = decode($_POST['billId']);
+  $query_id = decode($_POST['queryId']);
+  $asked_by = $_SESSION['userid'];
+  $permission_status = 'pending';
+  $date_time = date('Y-m-d H:i:s');
 
-    $check_for_already_asked_permission = GetPageRecord('id', 'sys_PackagePayment', 'id="'.$bill_id.'" and permission_status="pending"');
-    $check_for_already_asked_permission_result = mysqli_fetch_array($check_for_already_asked_permission);
+  $check_for_already_asked_permission = GetPageRecord('id', 'sys_PackagePayment', 'id="' . $bill_id . '" and permission_status="pending"');
+  $check_for_already_asked_permission_result = mysqli_fetch_array($check_for_already_asked_permission);
 
-    $count = count($check_for_already_asked_permission_result);
+  $count = count($check_for_already_asked_permission_result);
 
-    if($count > 0){
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => false, 'msg' => 'You Already Asked Permission For Delete This Bill.', 'info' => true);
-    }else{
+  if ($count > 0) {
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => false, 'msg' => 'You Already Asked Permission For Delete This Bill.', 'info' => true);
+  } else {
 
-        $asked_by_data = GetPageRecord('firstName,lastName', 'sys_userMaster', 'id="'.$asked_by.'"');
-        $asked_by_result = mysqli_fetch_array($asked_by_data);
+    $asked_by_data = GetPageRecord('firstName,lastName', 'sys_userMaster', 'id="' . $asked_by . '"');
+    $asked_by_result = mysqli_fetch_array($asked_by_data);
 
-        $details = $asked_by_first_name . ' ' . $asked_by_last_name . ' Asked For Permission To Delete Bill No ' . encode($bill_id);
+    $details = $asked_by_first_name . ' ' . $asked_by_last_name . ' Asked For Permission To Delete Bill No ' . encode($bill_id);
 
-        $name_value_2 = 'details="'.$details.'", taskType="PermissionNotification", queryId="' . $query_id . '",reminderDate="' . $date_time . '",addedBy="' . $asked_by . '",dateAdded="' . $date_time . '",assignTo="1", notificationType="3"';
+    $name_value_2 = 'details="' . $details . '", taskType="PermissionNotification", queryId="' . $query_id . '",reminderDate="' . $date_time . '",addedBy="' . $asked_by . '",dateAdded="' . $date_time . '",assignTo="1", notificationType="3"';
 
-        addlisting('queryTask', $name_value_2);
+    addlisting('queryTask', $name_value_2);
 
-        updatelisting('sys_PackagePayment','permission_status="pending"','id="'.$bill_id.'"');
+    updatelisting('sys_PackagePayment', 'permission_status="pending"', 'id="' . $bill_id . '"');
 
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => true, 'msg' => 'Permission Request Sent Successfully.');
-
-    }
-    echo json_encode($data);
-    exit;
-
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => true, 'msg' => 'Permission Request Sent Successfully.');
+  }
+  echo json_encode($data);
+  exit;
 }
 ?>
 
 <?php if (trim($_REQUEST['action']) == 'GivePermissionToDelete' && trim($_REQUEST['notification_id']) != '' && trim($_REQUEST['bill_id']) != '') {
 
-    $notification_id = $_POST['notification_id'];
-    $bill_id = $_POST['bill_id'];
-    $date_time = date('Y-m-d H:i:s');
-    $permission_status = $_POST['permission_status'];
+  $notification_id = $_POST['notification_id'];
+  $bill_id = $_POST['bill_id'];
+  $date_time = date('Y-m-d H:i:s');
+  $permission_status = $_POST['permission_status'];
 
-    $notification_data = GetPageRecord('*', 'queryTask', 'id="'.$notification_id.'"');
-    $notification_result = mysqli_fetch_array($notification_data);
+  $notification_data = GetPageRecord('*', 'queryTask', 'id="' . $notification_id . '"');
+  $notification_result = mysqli_fetch_array($notification_data);
 
-    if($permission_status == 'yes'){
+  if ($permission_status == 'yes') {
 
-        $details = 'Permission To Delete Bill No ' . $bill_id . ' Is Accepted By Admin.';
-        $name_value = 'details="'.$details.'", taskType="PermissionNotificationStatusAccepted", queryId="' . $notification_result['queryId'] . '",reminderDate="' . $date_time . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . $date_time . '",assignTo="'.$notification_result['addedBy'].'", notificationType="4"';
+    $details = 'Permission To Delete Bill No ' . $bill_id . ' Is Accepted By Admin.';
+    $name_value = 'details="' . $details . '", taskType="PermissionNotificationStatusAccepted", queryId="' . $notification_result['queryId'] . '",reminderDate="' . $date_time . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . $date_time . '",assignTo="' . $notification_result['addedBy'] . '", notificationType="4"';
 
-        addlisting('queryTask', $name_value);
+    addlisting('queryTask', $name_value);
 
-        updatelisting('sys_PackagePayment','permission_status="accepted"','id="'.decode($bill_id).'"');
+    updatelisting('sys_PackagePayment', 'permission_status="accepted"', 'id="' . decode($bill_id) . '"');
 
-        updatelisting('queryTask', 'makeDone=1', 'id="'.$notification_id.'"');
+    updatelisting('queryTask', 'makeDone=1', 'id="' . $notification_id . '"');
 
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => true, 'msg' => 'Permission Granted Successfully.');
-    }else{
-        $details = 'Permission To Delete Bill No ' . $bill_id . ' Is Rejected By Admin.';
-        $name_value = 'details="'.$details.'", taskType="PermissionNotificationStatusDeclined", queryId="' . $notification_result['queryId'] . '",reminderDate="' . $date_time . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . $date_time . '",assignTo="'.$notification_result['addedBy'].'", notificationType="4"';
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => true, 'msg' => 'Permission Granted Successfully.');
+  } else {
+    $details = 'Permission To Delete Bill No ' . $bill_id . ' Is Rejected By Admin.';
+    $name_value = 'details="' . $details . '", taskType="PermissionNotificationStatusDeclined", queryId="' . $notification_result['queryId'] . '",reminderDate="' . $date_time . '",addedBy="' . $_SESSION['userid'] . '",dateAdded="' . $date_time . '",assignTo="' . $notification_result['addedBy'] . '", notificationType="4"';
 
-        addlisting('queryTask', $name_value);
+    addlisting('queryTask', $name_value);
 
-        updatelisting('sys_PackagePayment','permission_status="declined"','id="'.decode($bill_id).'"');
+    updatelisting('sys_PackagePayment', 'permission_status="declined"', 'id="' . decode($bill_id) . '"');
 
-        updatelisting('queryTask', 'makeDone=1', 'id="'.$notification_id.'"');
+    updatelisting('queryTask', 'makeDone=1', 'id="' . $notification_id . '"');
 
-        header('Content-Type: application/json; charset=utf-8');
-        $data = array('success' => true, 'msg' => 'Permission Declined Successfully.');
-    }
-    echo json_encode($data);
-    exit;
+    header('Content-Type: application/json; charset=utf-8');
+    $data = array('success' => true, 'msg' => 'Permission Declined Successfully.');
+  }
+  echo json_encode($data);
+  exit;
 }
 ?>
 
 <?php
 if (trim($_REQUEST['action']) == 'deleteBillUser' && trim($_REQUEST['parentId']) != '' && trim($_REQUEST['id']) != '') {
-    deleteRecord('sys_PackagePayment', 'id="' . decode($_REQUEST['id']) . '"');
-    header('Content-Type: application/json; charset=utf-8');
-    $data = array('success' => true, 'msg' => 'Bill Deleted Successfully.', 'url' => 'display.html?ga=query&view=1&id='.$_REQUEST['parentId'].'&save=1&c=5');
-    echo json_encode($data);
-    exit;
+  deleteRecord('sys_PackagePayment', 'id="' . decode($_REQUEST['id']) . '"');
+  header('Content-Type: application/json; charset=utf-8');
+  $data = array('success' => true, 'msg' => 'Bill Deleted Successfully.', 'url' => 'display.html?ga=query&view=1&id=' . $_REQUEST['parentId'] . '&save=1&c=5');
+  echo json_encode($data);
+  exit;
 }
 ?>
 
@@ -6379,26 +6371,55 @@ if (trim($_REQUEST['action']) == 'deleteBillUser' && trim($_REQUEST['parentId'])
 
 <?php
 if ($_POST['action'] == 'deleteUserCityMapping' && isset($_POST["delete_mapping_id"])) {
-    // Handle the delete operation
-    $deleteMappingId = $_POST["delete_mapping_id"];
+  // Handle the delete operation
+  $deleteMappingId = $_POST["delete_mapping_id"];
 
-    // Perform the deletion (replace with your actual deletion logic)
-    $conn = db();
-    $deleteQuery = "DELETE FROM sys_user_city_mapping WHERE mapping_id = '$deleteMappingId'";
-    $deleteResult = mysqli_query($conn, $deleteQuery);
+  // Perform the deletion (replace with your actual deletion logic)
+  $conn = db();
+  $deleteQuery = "DELETE FROM sys_user_city_mapping WHERE mapping_id = '$deleteMappingId'";
+  $deleteResult = mysqli_query($conn, $deleteQuery);
 
-    if ($deleteResult) {
-        // Successful deletion, you can redirect or update the table as needed
-        ?>
-  <script>
-    parent.redirectpage('display.html?ga=user_city_mapping&save=1');
-  </script>
+  if ($deleteResult) {
+    // Successful deletion, you can redirect or update the table as needed
+?>
+    <script>
+      parent.redirectpage('display.html?ga=user_city_mapping&save=1');
+    </script>
   <?php
-       // header("Location: user_city_mapping.php");
-        // exit();
-    } else {
-        // Handle the error, log it, or display a user-friendly message
-        echo "Error deleting entry";
-    }
+    // header("Location: user_city_mapping.php");
+    // exit();
+  } else {
+    // Handle the error, log it, or display a user-friendly message
+    echo "Error deleting entry";
+  }
 }
+
+if ($_POST['action'] == 'insertUserCityMapping') {
+
+  // print_r($_POST); exit;   
+  // $deleteMappingId = $_POST["delete_mapping_id"];
+
+  // Perform the deletion (replace with your actual deletion logic)
+  $conn = db();
+  $insertQuery = "INSERT INTO sys_user_city_mapping (city_id, user_id) VALUES ('$_POST[cityId]', '$_POST[sellerName]')";
+
+  $insertResult = mysqli_query($conn, $insertQuery);
+
+  if ($insertResult) {
+    // Successful deletion, you can redirect or update the table as needed
+  ?>
+    <script>
+      parent.redirectpage('display.html?ga=user_city_mapping&save=1');
+    </script>
+<?php
+    // header("Location: user_city_mapping.php");
+    // exit();
+  } else {
+    // Handle the error, log it, or display a user-friendly message
+    echo "Error inserting entry";
+  }
+}
+
+
+
 ?>

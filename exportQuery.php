@@ -90,14 +90,20 @@ if($_REQUEST['keyword']!=''){
 $searchwhereuser=' and (id="'.decode($_REQUEST['keyword']).'" or clientId in (select id from userMaster where firstName like "%'.$_REQUEST['keyword'].'%" or lastName like "%'.$_REQUEST['keyword'].'%"  or mobile like "%'.$_REQUEST['keyword'].'%" or email like "%'.$_REQUEST['keyword'].'%") )';
 }
 
-$wheres=' clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.' '.$noteswhere.' '.$searchsource.' and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'" '.$searchconfirmproposal.'  order by id desc'; 
+$searchwhatsapp='';
+if (isset($_REQUEST['whatsapp']) && $_REQUEST['whatsapp'] != '') {
+    $searchwhatsapp = '  and  phone in (select mobile from  whatsapp_chat)';
 
-$wheres2=' and clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.'  '.$searchsource.' and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id asc'; 
+}
+
+$wheres=' clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.' '.$noteswhere.' '.$searchsource.' and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'" '.$searchconfirmproposal.' '.$searchwhatsapp.'   order by id desc'; 
+
+$wheres2=' and clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.'  '.$searchsource.' '.$searchwhatsapp.'  and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id asc'; 
 
 
-$where2='  clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.' '.$searchsource.' and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id desc'; 
+$where2='  clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.' '.$statusid.' '.$searchsource.' '.$searchwhatsapp.'  and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id desc'; 
 
-$where3='  clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.'  '.$searchsource.' and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id desc'; 
+$where3='  clientId in (select id from userMaster where userType=4 and firstName!="") '.$mainwhere.' '.$searchcity.' '.$searchwhereuser.'  '.$searchusers.'  '.$searchsource.' '.$searchwhatsapp.'  and date(dateAdded)<="'.date('Y-m-d',strtotime($endDate)).'" and  date(dateAdded)>="'.date('Y-m-d',strtotime($startDate)).'"   order by id desc'; 
  
 
 
@@ -114,7 +120,9 @@ $d=GetPageRecord('*','queryServicesMaster',' id="'.$restuser['serviceId'].'" ord
 $servicedata=mysqli_fetch_array($d);
 
 
-$c=GetPageRecord('*','sys_userMaster',' id="'.$restuser['assignTo'].'" and userType=1 or userType=0 order by firstName asc'); 
+//$c=GetPageRecord('*','sys_userMaster',' id="'.$restuser['assignTo'].'" and userType=1 or userType=0 order by firstName asc'); 
+
+$c=GetPageRecord('*','sys_userMaster',' id="'.$restuser['assignTo'].'"'); 
 $assigndata=mysqli_fetch_array($c);
 
 $e=GetPageRecord('*','querySourceMaster',' id="'.$restuser['leadSource'].'" order by name asc');

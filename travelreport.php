@@ -1,4 +1,5 @@
 <?php
+
 if ($_REQUEST['startDate'] != '' && $_REQUEST['endDate'] != '') {
     $startDate = date('d-m-Y', strtotime($_REQUEST['startDate']));
     $endDate = date('d-m-Y', strtotime($_REQUEST['endDate']));
@@ -7,13 +8,37 @@ if ($_REQUEST['startDate'] != '' && $_REQUEST['endDate'] != '') {
     $endDate = date('d-m-Y', strtotime('+10 Days'));
 }
 
-$where1 = '';
-$where2 = '';
 
 //or DATE(dateAdded) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '"
-$whereintotal = 'and DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" OR DATE(endDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" ';
-$uwhere = 'and endDate>"'.date('Y-m-d').'" and DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" ';
-$cwhere = 'and endDate<"'.date('Y-m-d').'" and NOT(endDate > "'.date('Y-m-d').'") and DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" OR DATE(endDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" ';
+$whereintotal = 'AND (
+    (
+        DATE(startDate) BETWEEN "' . date('Y-m-d', strtotime($startDate)) . '" 
+        AND "' . date('Y-m-d', strtotime($endDate)) . '" 
+        OR DATE(endDate) BETWEEN "' . date('Y-m-d', strtotime($startDate)) . '" 
+        AND "' . date('Y-m-d', strtotime($endDate)) . '"
+    )
+    OR
+    (
+        "' . date('Y-m-d', strtotime($startDate)) . '" BETWEEN DATE(startDate) AND DATE(endDate)
+        OR
+        "' . date('Y-m-d', strtotime($endDate)) . '" BETWEEN DATE(startDate) AND DATE(endDate)
+    )
+)';
+
+
+
+// $uwhere = 'and endDate>"'.date('Y-m-d').'" and (DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '") ';
+// $uwhere = 'and endDate>"'.date('Y-m-d').'" and (DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" OR DATE(endDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '") ';
+
+$uwhere = ' and DATE(startDate) >  "' . date('Y-m-d').'" and (DATE(endDate) between  "' . date('Y-m-d',strtotime('+1 day')) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" ||(DATE(startDate) between  "' . date('Y-m-d',strtotime('+1 day')) . '" and "' . date('Y-m-d', strtotime($endDate)) . '")) ';
+
+
+
+$cwhere = 'and endDate<"'.date('Y-m-d').'"  and (DATE(startDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" OR DATE(endDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '") ';
+
+$owhere = 'and (DATE(startDate) <= "' . date('Y-m-d') . '" and DATE(endDate) >= "' . date('Y-m-d') . '" )';
+
+
 $whereintotal2 = ' and DATE(paymentDate) between  "' . date('Y-m-d', strtotime($startDate)) . '" and "' . date('Y-m-d', strtotime($endDate)) . '" ';
 
 $clientsearch = '';
@@ -30,7 +55,32 @@ if ($_REQUEST['searchcity'] != '') {
 $searchusers = '';
 if ($_REQUEST['searchusers'] != '') {
     $searchusers = ' and queryId in(select id from queryMaster where   assignTo="' . $_REQUEST['searchusers'] . '") ';
+    
 }
+
+if($LoginUserDetails['userType']!=0){ 
+  
+    $b = GetPageRecord('*', 'roleMaster', 'id=(select branchId from sys_userMaster where id="' . $_SESSION['userid'] . '")');
+    $clientData = mysqli_fetch_assoc($b);
+    if ($clientData['name'] == 'Accounts' || $clientData['name'] == 'PostSales') {
+        $mainwhere='1';
+  
+    }
+    else
+    {
+        $mainwhere = ' assignTo="' . $_SESSION['userid'] . '"   ';
+    }
+  
+    
+    } else 
+    {
+      
+        $mainwhere='1  '; 
+    }
+
+
+
+
 ?>
 
 <style>
@@ -110,7 +160,7 @@ if ($_REQUEST['searchusers'] != '') {
                                                                 <option value="">All Users</option>
                                                                 <?php
 
-                                                                $rs22 = GetPageRecord('*', 'sys_userMaster', ' 1  order by firstName desc');
+                                                                $rs22 = GetPageRecord('*', 'sys_userMaster', ' 1 and status=1  order by firstName desc');
                                                                 while ($restuser = mysqli_fetch_array($rs22)) {
 
                                                                     ?>
@@ -147,7 +197,7 @@ if ($_REQUEST['searchusers'] != '') {
                                     </script>
                                     <table width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td width="33%" align="left" valign="top">
+                                            <td width="25%" align="left" valign="top">
                                                 <a href="javascript:void(0);" onclick="changeTourType('totaltours')">
                                                     <div class="statusbox <?php if ($_REQUEST['tour'] == 'totaltours') {
                                                         echo 'sts-box-border';
@@ -156,7 +206,7 @@ if ($_REQUEST['searchusers'] != '') {
                                                     } ?>" style="background-color:#655be6;">
                                                         <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;">
                                                             <?php
-                                                            $ba = GetPageRecord('count(id) as totaltours', 'sys_packageBuilder', ' confirmQuote=1 ' . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5) ' . $clientsearch . ' ' . $clientsearch . ' ' . $searchcity . '');
+                                                            $ba = GetPageRecord('count(id) as totaltours', 'sys_packageBuilder', ' confirmQuote=1 ' . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.') ' . $searchusers . ' ' . $clientsearch . ' ' . $searchcity . '');
                                                             $packagecost = mysqli_fetch_array($ba);
                                                             echo($packagecost['totaltours']); ?>
                                                         </div>
@@ -164,7 +214,7 @@ if ($_REQUEST['searchusers'] != '') {
                                                     </div>
                                                 </a>
                                             </td>
-                                            <td width="33%" align="left" valign="top">
+                                            <td width="25%" align="left" valign="top">
                                                 <a href="javascript:void(0);"
                                                    onclick="changeTourType('completedtours')">
                                                     <div class="statusbox <?php if ($_REQUEST['tour'] == 'completedtours') {
@@ -172,7 +222,7 @@ if ($_REQUEST['searchusers'] != '') {
                                                     } else {
                                                         echo '';
                                                     } ?>" style="background-color:#0cb5b5;">
-                                                        <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;"><?php $ba = GetPageRecord('count(id) as completedtours', 'sys_packageBuilder', ' confirmQuote=1 ' . $cwhere . ' and queryId in (select id from queryMaster where statusId=5)  ' . $clientsearch . ' ' . $clientsearch . ' ' . $searchcity . ' ');
+                                                        <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;"><?php $ba = GetPageRecord('count(id) as completedtours', 'sys_packageBuilder', ' confirmQuote=1 ' . $cwhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  ' . $searchusers . ' ' . $clientsearch . ' ' . $searchcity . ' ');
                                                             $packagecostrecived = mysqli_fetch_array($ba);
                                                             echo($packagecostrecived['completedtours']); ?></div>
                                                         Completed Tours
@@ -180,20 +230,35 @@ if ($_REQUEST['searchusers'] != '') {
                                                 </a>
                                             </td>
 
-                                            <td width="33%" align="left" valign="top">
+                                            <td width="25%" align="left" valign="top">
                                                 <a onclick="changeTourType('upcomingtours')" href="javascript:void(0);">
                                                     <div class="statusbox <?php if ($_REQUEST['tour'] == 'upcomingtours') {
                                                         echo 'sts-box-border';
                                                     } else {
                                                         echo '';
                                                     } ?>" style="background-color:#e45555;">
-                                                        <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;"><?php $ba = GetPageRecord('count(id) as upcomingtours', 'sys_packageBuilder', ' confirmQuote=1 ' . $uwhere . ' and queryId in (select id from queryMaster where statusId=5)  ' . $clientsearch . ' ' . $clientsearch . ' ' . $searchcity . ' ');
+                                                        <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;"><?php $ba = GetPageRecord('count(id) as upcomingtours', 'sys_packageBuilder', ' confirmQuote=1 ' . $uwhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  ' . $searchusers . ' ' . $clientsearch . ' ' . $searchcity . ' ');
                                                             $packagecostrecived = mysqli_fetch_array($ba);
                                                             echo($packagecostrecived['upcomingtours']); ?></div>
                                                         Upcoming Tours
                                                     </div>
                                                 </a>
                                             </td>
+                                            <td width="25%" align="left" valign="top">
+                                                <a onclick="changeTourType('ongoing')" href="javascript:void(0);">
+                                                    <div class="statusbox <?php if ($_REQUEST['tour'] == 'ongoing') {
+                                                        echo 'sts-box-border';
+                                                    } else {
+                                                        echo '';
+                                                    } ?>" style="background-color:#fdba45;">
+                                                        <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;"><?php $ba = GetPageRecord('count(id) as ongoing', 'sys_packageBuilder', ' confirmQuote=1 ' . $owhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  ' . $searchusers . ' ' . $clientsearch . ' ' . $searchcity . ' ');
+                                                            $packagecostrecived = mysqli_fetch_array($ba);
+                                                            echo($packagecostrecived['ongoing']); ?></div>
+                                                        Ongoing Tours
+                                                    </div>
+                                                </a>
+                                            </td>
+                                            
                                         </tr>
                                     </table>
 
@@ -216,13 +281,17 @@ if ($_REQUEST['searchusers'] != '') {
 
                                     $totalno = 1;
                                     if ($_REQUEST['tour'] == 'totaltours') {
-                                        $where = ' where confirmQuote=1 and queryId!=0   ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5)  order by startDate asc';
+                                        $where = ' where confirmQuote=1 and queryId!=0   ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  order by startDate asc';
                                     } elseif ($_REQUEST['tour'] == 'completedtours') {
-                                        $where = ' where confirmQuote=1 and queryId!=0   ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $cwhere . ' and queryId in (select id from queryMaster where statusId=5)  order by startDate asc';
+                                        $where = ' where confirmQuote=1 and queryId!=0   ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $cwhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  order by startDate asc';
                                     } elseif ($_REQUEST['tour'] == 'upcomingtours') {
-                                        $where = ' where confirmQuote=1 and queryId!=0 and endDate>"' . date('Y-m-d') . '" ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $uwhere . ' and queryId in (select id from queryMaster where statusId=5)  order by startDate asc';
-                                    } else {
-                                        $where = ' where confirmQuote=1 and queryId!=0 ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . ' ' . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5) order by startDate asc';
+                                        $where = ' where confirmQuote=1 and queryId!=0 and endDate>"' . date('Y-m-d') . '" ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $uwhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  order by startDate asc';
+                                    }
+                                     elseif ($_REQUEST['tour'] == 'ongoing') {
+                                    $where = ' where confirmQuote=1 and queryId!=0  ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . $owhere . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.')  order by startDate asc';
+                                } 
+                                     else {
+                                        $where = ' where confirmQuote=1 and queryId!=0 ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . ' ' . $whereintotal . ' and queryId in (select id from queryMaster where statusId=5 and '.$mainwhere.' ) order by startDate asc';
                                         /*$where = ' where startDate>="' . date('Y-m-d', strtotime($startDate)) . '" and startDate<="' . date('Y-m-d', strtotime($endDate)) . '"' . $whereintotal .'and confirmQuote=1 and queryId!=0   ' . $clientsearch . ' ' . $searchcity . ' ' . $searchusers . ' and queryId in (select id from queryMaster where statusId=5)  order by startDate asc';*/
                                     }
 
@@ -258,7 +327,7 @@ if ($_REQUEST['searchusers'] != '') {
                                             <td align="left" valign="top" style="padding-right:20px;">
                                                 <div style="font-size:15px; font-weight:500;line-height: 16px; margin-bottom:3px; font-weight:600;">
                                                     <a style="color: blue !important;"
-                                                       href="display.html?ga=query&view=1&id=<?php echo encode($rest['queryId']); ?>"><?php echo encode($rest['id']); ?></a>
+                                                       href="display.html?ga=query&view=1&id=<?php echo encode($rest['queryId']); ?>"><?php echo encode($rest['queryId']); ?></a>
                                                 </div>
                                             </td>
                                             <td align="left" valign="top"
@@ -287,12 +356,17 @@ if ($_REQUEST['searchusers'] != '') {
                                             </td>
                                             <td align="left" valign="top">
                                                 <?php if ($rest['endDate'] < date('Y-m-d')) { ?>
-                                                    <span class="badge badge-success">Compleated</span>
+                                                    <span class="badge badge-success">Completed</span>
                                                 <?php } ?>
 
+                                                <?php if ($rest['startDate'] <= date('Y-m-d') && $rest['endDate'] >= date('Y-m-d')) { ?>
+                                               <span class="badge badge-warning">Ongoing</span>
+                                               <?php } ?>
 
 
-                                                <?php if ($rest['endDate'] > date('Y-m-d')) { ?>
+
+
+                                                <?php if ($rest['startDate'] > date('Y-m-d') && $rest['endDate'] > date('Y-m-d')) { ?>
                                                     <span class="badge badge-danger">Upcoming</span>
                                                 <?php } ?>
 

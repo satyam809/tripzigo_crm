@@ -9,9 +9,32 @@ $endDate=date('d-m-Y');
 
 $where1='';
 $where2='';
+$where_assign = '';
+if($LoginUserDetails['userType']!=0){ 
+  
+  $b = GetPageRecord('*', 'roleMaster', 'id=(select branchId from sys_userMaster where id="' . $_SESSION['userid'] . '")');
+  $clientData = mysqli_fetch_assoc($b);
+  if ($clientData['name'] == 'Accounts' || $clientData['name'] == 'PostSales') {
+    $mainwhere=' and 1 '; 
 
-$whereintotal=' and DATE(dateAdded) between  "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" ';
-$whereintotal2=' and DATE(paymentDate) between  "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" ';
+  }
+  else
+  {
+      $mainwhere=' and (addedBy="'.$_SESSION['userid'].'")  ';
+      $where_assign.=' and paymentBy="'.$_SESSION['userid'].'"  ';
+  }
+
+  
+  } else 
+  {
+    
+      $mainwhere=' and 1 '; 
+  }
+
+
+
+  $whereintotal=' and DATE(dateAdded) between  "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" '.$mainwhere.' ';
+  $whereintotal2=' and DATE(paymentDate) between  "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" ';
 
 
 
@@ -107,7 +130,11 @@ $where2=' and paymentStatus=2 and DATE(paymentDate)<"'.date('Y-m-d H:i:s').'"';
 	
 	</div>Total Amount</div></td>
     <td width="33%" align="left" valign="top"><div class="statusbox" style="background-color:#0cb5b5;">
-      <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;">&#8377;<?php $ba=GetPageRecord('SUM(amount) as totalrecived','sys_PackagePayment',' paymentStatus=1 '.$whereintotal2.' '.$where1.' '.$where2.''); $packagecostrecived=mysqli_fetch_array($ba); echo number_format($packagecostrecived['totalrecived']); ?></div>
+      <div style="margin-bottom: 0px; font-size: 30px; line-height: 38px;">&#8377;
+      <?php 
+        // $ba=GetPageRecord('SUM(amount) as totalrecived','sys_PackagePayment',' paymentStatus=1 '.$whereintotal2.' '.$where1.' '.$where2.'');
+        $ba=GetPageRecord('SUM(amount) as totalrecived','sys_PackagePayment',' paymentStatus=1 '.$whereintotal2.' '.$where1.' '.$where2.''.$where_assign); 
+       $packagecostrecived=mysqli_fetch_array($ba); echo number_format($packagecostrecived['totalrecived']); ?></div>
       Received</div></td>
      
     <td width="33%" align="left" valign="top"><div class="statusbox" style="background-color:#e45555;">
@@ -130,6 +157,7 @@ $where2=' and paymentStatus=2 and DATE(paymentDate)<"'.date('Y-m-d H:i:s').'"';
                                                   <th>Payment ID </th>
                                                   <th>Transection ID</th>
                                                   <th>Client</th>
+                                                  <th>Agent</th>
                                                   <th>Type</th>
                                                   <th>Amount</th>
                                                   <th>Payment Date</th>
@@ -141,7 +169,10 @@ $where2=' and paymentStatus=2 and DATE(paymentDate)<"'.date('Y-m-d H:i:s').'"';
 
 $totalno=1;
 
-$where=' where DATE(paymentDate) between "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" '.$where1.' '.$where2.' order by paymentDate desc';
+// $where=' where DATE(paymentDate) between "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" '.$where1.' '.$where2.' order by paymentDate desc';
+
+$where=' where DATE(paymentDate) between "'.date('Y-m-d',strtotime($startDate)).'" and "'.date('Y-m-d',strtotime($endDate)).'" '.
+$where1.' '.$where2.' '.$where_assign.' order by paymentDate desc';
 
 
 $limit=clean($_GET['records']);
@@ -156,14 +187,20 @@ while($paymentlist=mysqli_fetch_array($rs[0])){
  
  $b3d=GetPageRecord('*','userMaster','id in (select clientId from queryMaster where id="'.$paymentlist['queryId'].'" )'); 
 $clientData=mysqli_fetch_array($b3d);
+
+$b3a=GetPageRecord('firstName,lastName','sys_userMaster','id in (select assignTo from queryMaster where id="'.$paymentlist['queryId'].'" )'); 
+$agentData=mysqli_fetch_array($b3a);
+
 ?>
 
 <tr>
   <td align="left" valign="top"><a href="display.html?ga=query&view=1&id=<?php echo encode($paymentlist['queryId']); ?>" target="_blank"><?php echo encode($paymentlist['queryId']); ?></a></td>
   <td align="left" valign="top"><?php if($paymentlist['paymentStatus']==1){ echo encode($paymentlist['id']); } else { echo '-'; } ?></td>
-  <td align="left" valign="top" style="text-transform:uppercase;"><?php if($paymentlist['paymentId']!=''){  echo ($paymentlist['paymentId']); } else { echo '-'; }  ?></td>
+  <!-- <td align="left" valign="top" style="text-transform:uppercase;"><?php if($paymentlist['paymentId']!='' ){  echo ($paymentlist['paymentId']); } else { echo '-'; }  ?></td> -->
+  <td align="left" valign="top" style="text-transform:uppercase;"><?php if($paymentlist['paymentId']!='' ){  echo ($paymentlist['paymentId']); } else { echo '-'; }  ?></td>
   <td align="left" valign="top"><?php echo stripslashes($clientData['firstName']); ?> <?php echo stripslashes($clientData['lastName']); ?></td>
-  <td align="left" valign="top"><?php if($paymentlist['paymentId']!=''){  ?><span class="badge badge-dark"><?php echo ($paymentlist['transectionType']); ?></span><?php } ?></td>
+   <td align="left" valign="top"><?php echo stripslashes($agentData['firstName']); ?> <?php echo stripslashes($agentData['lastName']); ?></td>
+  <td align="left" valign="top"><?php if($paymentlist['id']!=''){  ?><span class="badge badge-dark"><?php echo ($paymentlist['transectionType']); ?></span><?php } ?></td>
   <td align="left" valign="top">&#8377;<?php echo ($paymentlist['amount']); ?></td>
   <td align="left" valign="top"><?php echo date('d/m/Y - h:i A',strtotime($paymentlist['paymentDate'])); ?> </td>
   <td align="left" valign="top"><?php if($paymentlist['paymentStatus']==1){ ?><span class="badge badge-success">Paid</span><?php } ?>

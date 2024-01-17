@@ -1,5 +1,6 @@
 <?php //echo 'test' . $_SERVER['REMOTE_PORT'];
-//die; ?>
+//die; 
+?>
 <div>
     <select name="activityType" id="activityType" onchange="openModal(this.value)">
         <option selected>Working</option>
@@ -13,7 +14,7 @@
 
     <span id="currentworkinghours">
         <span class="badge badge-primary">Working Hours:</span>
-        <span id="startWorkingHours"></span>
+        <span id="startWorkingHours">00:00</span>
         <!-- <strong class="showcurrentworkinghours">0</strong> -->
     </span>
     <!-- <span class="badge badge-primary activeactivitytype"></span>
@@ -134,8 +135,17 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        // Assuming you have an element with ID "startWorkingHours"
         document.getElementById("startWorkingHours").innerText = formattedTime;
+
+        // getElementsByClassName returns a collection, so you need to specify the index
+        const totalWorkingTimeElements = document.getElementsByClassName("TotalWorkingTime");
+        for (let i = 0; i < totalWorkingTimeElements.length; i++) {
+            totalWorkingTimeElements[i].innerText = formattedTime;
+        }
     }
+
 
     function updateWorkingHour() {
         $.ajax({
@@ -151,12 +161,30 @@
                     const totalSeconds = parseInt(result.data) * 60;
                     setTimerFromSeconds(totalSeconds);
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error("Error occurred:", error);
             }
+            // error: function(xhr, status, error) {
+            //     console.error("Error occurred:", error);
+            // }
         });
     }
     updateWorkingHour();
     setInterval(updateWorkingHour, 1000);
+</script>
+<script>
+    // show popup message to ensure that u have logged out
+    function showPopup() {
+        alert("Make sure you have logged out");
+    }
+
+    function schedulePopup() {
+        var popupTime = new Date();
+        popupTime.setHours(19);
+        popupTime.setMinutes(0);
+        var currentTime = new Date();
+        if (currentTime.getHours() === popupTime.getHours() &&
+            currentTime.getMinutes() === popupTime.getMinutes()) {
+            showPopup();
+        }
+    }
+    setInterval(schedulePopup, 60000); // Check every minute (60000 milliseconds)
 </script>

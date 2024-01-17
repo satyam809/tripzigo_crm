@@ -1,4 +1,5 @@
 <?php  
+//echo 'test';die;
 include "config/database.php"; 
 include "config/function.php";  
 include "config/setting.php";  
@@ -11,6 +12,7 @@ $password = clean($_POST['userpass']);
 
 $ftoken = '';   
 $loginreturn = login($username,$password,$ftoken);
+//echo $loginreturn; exit;
 if($loginreturn=='yes'){ 
  
  
@@ -28,7 +30,7 @@ updatelisting('sys_userMaster',$namevalue,$where);
 $_SESSION['sesQRCode']=$namevalue;
 $_SESSION["login_time_stamp"] = time();
 
-
+//echo $fullurl;exit;
 header("Location: ".$fullurl.""); 
 exit(); 
 

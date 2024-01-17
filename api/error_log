@@ -243,3 +243,12 @@
 [06-Nov-2023 11:30:12 UTC] PHP Parse error:  syntax error, unexpected '$q' (T_VARIABLE) in /home/tripzfp3/public_html/crm/api/packs.php on line 77
 [06-Nov-2023 11:30:16 UTC] PHP Parse error:  syntax error, unexpected '$q' (T_VARIABLE) in /home/tripzfp3/public_html/crm/api/packs.php on line 77
 [06-Nov-2023 11:30:20 UTC] PHP Parse error:  syntax error, unexpected '$q' (T_VARIABLE) in /home/tripzfp3/public_html/crm/api/packs.php on line 77
+[08-Dec-2023 12:42:00 Asia/Calcutta] PHP Warning:  mysqli_error() expects exactly 1 parameter, 0 given in /home/tripzfp3/public_html/crm/api/packages2.php on line 135
+[08-Dec-2023 12:42:24 Asia/Calcutta] PHP Warning:  mysqli_error() expects exactly 1 parameter, 0 given in /home/tripzfp3/public_html/crm/api/packages2.php on line 135
+[08-Dec-2023 12:42:43 Asia/Calcutta] PHP Warning:  mysqli_error() expects exactly 1 parameter, 0 given in /home/tripzfp3/public_html/crm/api/packages2.php on line 135
+[08-Dec-2023 13:28:54 Asia/Calcutta] PHP Warning:  mysqli_error() expects exactly 1 parameter, 0 given in /home/tripzfp3/public_html/crm/api/packages2.php on line 135
+[28-Dec-2023 16:53:49 Asia/Calcutta] PHP Notice:  Trying to access array offset on value of type null in /home/tripzfp3/public_html/crm/api/whatsapp_doc.php on line 40
+[29-Dec-2023 11:57:53 Asia/Calcutta] PHP Notice:  Trying to access array offset on value of type null in /home/tripzfp3/public_html/crm/api/whatsapp_doc.php on line 41
+[29-Dec-2023 11:59:51 Asia/Calcutta] PHP Notice:  Trying to access array offset on value of type null in /home/tripzfp3/public_html/crm/api/whatsapp_doc.php on line 41
+[29-Dec-2023 12:10:16 Asia/Calcutta] PHP Notice:  Trying to access array offset on value of type null in /home/tripzfp3/public_html/crm/api/whatsapp_doc.php on line 41
+[29-Dec-2023 12:25:50 Asia/Calcutta] PHP Notice:  Trying to access array offset on value of type null in /home/tripzfp3/public_html/crm/api/whatsapp_doc.php on line 41

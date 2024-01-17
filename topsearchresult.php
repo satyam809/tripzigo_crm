@@ -44,6 +44,10 @@ if($LoginUserDetails['userType']!=0){
         
         $mainwhere = ' and (statusId=5  or statusId=9) ';
     }
+    else if($clientData['name'] == 'Ticketing')
+    {
+       $mainwhere = ' and (statusId <> 5 AND (addedBy="' . $_SESSION['userid'] . '" ||   assignTo="' . $_SESSION['userid'] . '") OR  statusId = 5 )';
+    }
     else{
 
  $mainwhere='and assignTo in (select id from sys_userMaster where branchId in (select id from roleMaster where parentId="'.$LoginUserDetails['branchId'].'")  or (   assignTo in (select id from sys_userMaster where branchId in (select id from roleMaster where parentId in ( select id from roleMaster where parentId="'.$LoginUserDetails['branchId'].'" ) ) ) or   assignTo in (select id from sys_userMaster where branchId in (select id from roleMaster where parentId in ( select id from roleMaster where parentId in ( select id from roleMaster where parentId="'.$LoginUserDetails['branchId'].'" ) ) ) ) or   assignTo in (select id from sys_userMaster where branchId in (select id from roleMaster where parentId in ( select id from roleMaster where parentId in ( select id from roleMaster where parentId in (select id from roleMaster where parentId="'.$LoginUserDetails['branchId'].'")  ) ) ) ) or   assignTo in (select id from sys_userMaster where branchId in (select id from roleMaster where parentId in ( select id from roleMaster where parentId in ( select id from roleMaster where parentId in (select id from roleMaster where parentId in (select id from roleMaster where parentId="'.$LoginUserDetails['branchId'].'") )  ) ) ) ) or addedBy="'.$_SESSION['userid'].'" or  assignTo="'.$_SESSION['userid'].'") )  ';
